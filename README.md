@@ -1,7 +1,7 @@
 # TAMU-SPE Desktop
-Howdy! Welcome to the official TAMU-SPE Desktop Application. Stay up-to-date will all upcoming events, including reminders and event information right on your Desktop.
+Howdy! Welcome to the official TAMU-SPE Desktop Application. Stay up-to-date will all upcoming events, including reminders and event information right on your Desktop!
 
-![TAMUSPE Desktop](images/SPE_RGB_square.png)
+![TAMUSPE Desktop](images/SPE_A_M_RGB_square.png)
 
 ## Installation
 - [Windows 10]()
