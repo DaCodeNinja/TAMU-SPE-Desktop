@@ -1,5 +1,5 @@
 # TAMU-SPE Desktop
-TAMU-SPE Desktop is the official desktop application for the Texas A&M Society of Petroleum Engineers Student Section. Stay up-to-date will all our upcoming event information, including event notifications right on your Desktop!
+TAMU-SPE Desktop is the official desktop application for the Texas A&M Society of Petroleum Engineers Student Section. Stay up-to-date with all our upcoming event information, including event notifications, right on your desktop!
 
 ![TAMUSPE Desktop](images/SPE_A_M_RGB_square.png)
 
