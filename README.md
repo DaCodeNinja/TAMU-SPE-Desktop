@@ -18,5 +18,5 @@ TAMU-SPE Desktop is the official desktop application for the Texas A&M Society o
 
 ## Enabling Notifications on MacOS
 
-![MacOS Notifications](images/MacNotif_Artboard.png)
+![MacOS Notifications](images/MacNotif.png)
 
