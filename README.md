@@ -9,7 +9,7 @@ Howdy! Welcome to the official TAMU-SPE Desktop Application. Stay up-to-date wil
 - [MacOS Intel](https://pub-58bc52c7aeb14c7993e4f6b166e44c74.r2.dev/TAMU-SPE.dmg) 
 - MacOS Apple silicon: Not Yet Tested
 
-## Enabling Notifications on MacOS
+## Windows
 
 ![MacOS Notifications](images/SPE_RGB_square.png)
 
@@ -17,7 +17,7 @@ Howdy! Welcome to the official TAMU-SPE Desktop Application. Stay up-to-date wil
 
 ![MacOS Notifications](images/SPE_RGB_square.png)
 
-## Windows
+## Enabling Notifications on MacOS
 
 ![MacOS Notifications](images/SPE_RGB_square.png)
 
