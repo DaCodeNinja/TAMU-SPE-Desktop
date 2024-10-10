@@ -1,5 +1,5 @@
 # TAMU-SPE Desktop
-TAMU-SPE Desktop was developed for the Texas A&M Society of Petroleum Engineers Student Section to help sync students and industry partners. Users can stay up-to-date with upcoming event information, including an event notification feature tested on MacOS Intel and Windows 10 (Apple Bootcamp).
+TAMU-SPE Desktop was developed for the Texas A&M Society of Petroleum Engineers Student Section to help sync students and industry partners. Users can stay up-to-date with upcoming event information, including a push notification feature tested on MacOS Intel and Windows 10 (Apple Bootcamp).
 
 ![TAMUSPE Desktop](images/SPE_A_M_RGB_square.png)
 
