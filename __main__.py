@@ -9,11 +9,11 @@ from PySide6.QtWidgets import (QApplication, QMainWindow, QTableWidgetItem, QTex
                                QPlainTextEdit, QStyleFactory)
 from ui.ui_mainwindow import Ui_MainWindow
 from datetime import datetime, timedelta
-from src.get_data import data
+from src.get_calendar_data import data
 import time
 import uuid
 import src.changeyaml as changeyaml
-# import pync ## <---- FIX THIS. 
+#import pync ## <---- wont work on windows rn, update this
 
 
 # import os
@@ -116,8 +116,8 @@ class Widget(QMainWindow):
 
             if not changeyaml.pull(self.settings_filename)['saved_username']:
 
-                import src.get_key as get_key
-                key = get_key.get()
+                import src.get_response_key as get_response_key
+                key = get_response_key.get()
                 if key == 'error':
                     pass
 
@@ -607,8 +607,8 @@ class Widget(QMainWindow):
             else:
                 print("text not empty.")
 
-                import src.get_key as get_key
-                key = get_key.get()
+                import src.get_response_key as get_response_key
+                key = get_response_key.get()
                 if key == 'error':
                     os.remove(filename)
                     status.setText('empty')
