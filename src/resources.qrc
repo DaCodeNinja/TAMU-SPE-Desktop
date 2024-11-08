@@ -1,0 +1,13 @@
+<RCC>
+  <qresource prefix="Images">
+    <file>images/blk-settings-50.png</file>
+    <file>images/icons8-refresh-24.png</file>
+    <file>images/Python_logo_and_wordmark.png</file>
+    <file>images/Qt-logo-neon_900px.png</file>
+    <file>images/SPE_A_M_RGB_border.png</file>
+    <file>images/icons8-settings-50.png</file>
+    <file>images/icons8-refresh-50.png</file>
+    <file>images/TAMUSPE_Square.png</file>
+    <file>images/arrow.clockwise.circle@2x.png</file>
+  </qresource>
+</RCC>

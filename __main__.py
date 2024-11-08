@@ -7,12 +7,12 @@ from PySide6.QtUiTools import QUiLoader
 from PySide6.QtWidgets import (QApplication, QMainWindow, QTableWidgetItem, QTextBrowser, QLabel,
                                QHeaderView, QSpinBox, QCheckBox, QMenu, QSystemTrayIcon, QMessageBox, QPushButton,
                                QPlainTextEdit, QStyleFactory)
-from ui_mainwindow import Ui_MainWindow
+from ui.ui_mainwindow import Ui_MainWindow
 from datetime import datetime, timedelta
-from get_data import data
+from src.get_data import data
 import time
 import uuid
-import changeyaml
+import src.changeyaml as changeyaml
 import pync
 
 
@@ -57,10 +57,10 @@ class Widget(QMainWindow):
         """ Grab the table element from the UI code we just "setup" , setup some filepaths"""
         self.table = self.ui.table
         self.df = None
-        self.settings_filename = os.path.join(os.path.dirname(__file__), 'settings.yaml')
-        self.infowidget_filename = os.path.join(os.path.dirname(__file__), 'info_widget.ui')
-        self.settings_dialog_filename = os.path.join(os.path.dirname(__file__), 'settings.ui')
-        self.feedback_dialog_filename = os.path.join(os.path.dirname(__file__), 'feedback.ui')
+        self.settings_filename = os.path.join(os.path.dirname(__file__), 'src/settings.yaml')
+        self.infowidget_filename = os.path.join(os.path.dirname(__file__), 'ui/info_widget.ui')
+        self.settings_dialog_filename = os.path.join(os.path.dirname(__file__), 'ui/settings.ui')
+        self.feedback_dialog_filename = os.path.join(os.path.dirname(__file__), 'ui/feedback.ui')
 
         """ 
         Gotta setup some pointers for the multi-tasking (threading) to work properly
@@ -116,7 +116,7 @@ class Widget(QMainWindow):
 
             if not changeyaml.pull(self.settings_filename)['saved_username']:
 
-                import get_key
+                import src.get_key as get_key
                 key = get_key.get()
                 if key == 'error':
                     pass
@@ -607,7 +607,7 @@ class Widget(QMainWindow):
             else:
                 print("text not empty.")
 
-                import get_key
+                import src.get_key as get_key
                 key = get_key.get()
                 if key == 'error':
                     os.remove(filename)
@@ -617,7 +617,7 @@ class Widget(QMainWindow):
                     with open(filename, 'w') as file:
                         file.write(text)
 
-                    import send_file
+                    import src.send_file as send_file
                     response = send_file.send(filename, key)
                     if response == 'error':
                         status.setText(response)

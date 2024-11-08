@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>928</width>
+    <width>850</width>
     <height>443</height>
    </rect>
   </property>
@@ -18,7 +18,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>TAMU-SPE v1.0.0</string>
+   <string>TAMU-SPE Schedule v1.0.0</string>
   </property>
   <property name="windowIcon">
    <iconset resource="resources.qrc">
@@ -72,9 +72,6 @@
       </property>
       <item>
        <widget class="QTableWidget" name="table">
-        <property name="statusTip">
-         <string>Upcoming Events</string>
-        </property>
         <property name="lineWidth">
          <number>1</number>
         </property>
@@ -161,9 +158,6 @@
             <width>0</width>
             <height>25</height>
            </size>
-          </property>
-          <property name="statusTip">
-           <string>Today's Date</string>
           </property>
           <property name="text">
            <string>Date</string>
@@ -333,7 +327,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>928</width>
+     <width>850</width>
      <height>24</height>
     </rect>
    </property>
