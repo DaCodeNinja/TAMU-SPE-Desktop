@@ -13,7 +13,7 @@ from src.get_data import data
 import time
 import uuid
 import src.changeyaml as changeyaml
-import pync
+# import pync ## <---- FIX THIS. 
 
 
 # import os
