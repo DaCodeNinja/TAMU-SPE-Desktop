@@ -10,3 +10,4 @@ src/__pycache__/changeyaml.cpython-312.pyc
 src/__pycache__/get_data.cpython-312.pyc
 src/__pycache__/resources_rc.cpython-312.pyc
 ui/__pycache__/ui_mainwindow.cpython-312.pyc
+src/__pycache__/get_calendar_data.cpython-312.pyc
