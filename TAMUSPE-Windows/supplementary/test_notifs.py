@@ -1,3 +1,3 @@
 import pync
 
-pync.notify('hey', open='https://www.tamuspe.org')
+pync.notify('test123', open='https://www.tamuspe.org')
