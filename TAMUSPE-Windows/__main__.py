@@ -160,7 +160,7 @@ class Widget(QMainWindow):
         self.splash_gif.setFixedSize(25, 25)
 
         # Load GIF
-        movie = QMovie(os.path.join(os.path.dirname(__file__), 'media/loading.gif'))
+        movie = QMovie(os.path.join(os.path.dirname(__file__), 'src/loading.gif'))
         movie.setScaledSize(QSize().scaled(25, 25, Qt.KeepAspectRatio))
         self.splash_gif.setMovie(movie)
         movie.start()
