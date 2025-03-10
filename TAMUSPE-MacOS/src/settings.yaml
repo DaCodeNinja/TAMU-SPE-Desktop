@@ -1,0 +1,11 @@
+days: true
+first_open: false
+hours: true
+notification_days: 2
+notification_hours: 2
+notifications: true
+open_in_background: true
+refresh_table_daily: true
+saved_username: true
+user_id: 34df8f84-0cdb-4486-ae1d-d871ac04b966
+version: 1.0.0
