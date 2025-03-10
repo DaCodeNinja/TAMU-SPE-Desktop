@@ -1,0 +1,11 @@
+pandas
+pyarrow
+pyside6
+requests
+icalendar
+bs4
+pyyaml
+python-dotenv
+pyinstaller
+win10toast_click
+pyqtdarktheme
