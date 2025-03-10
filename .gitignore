@@ -1,0 +1,13 @@
+.DS_Store
+src/__pycache__/changeyaml.cpython-310.pyc
+src/__pycache__/get_data.cpython-310.pyc
+src/__pycache__/get_key.cpython-310.pyc
+src/__pycache__/resources_rc.cpython-310.pyc
+src/__pycache__/send_file.cpython-310.pyc
+ui/__pycache__/ui_mainwindow.cpython-310.pyc
+activate.lnk
+src/__pycache__/changeyaml.cpython-312.pyc
+src/__pycache__/get_data.cpython-312.pyc
+src/__pycache__/resources_rc.cpython-312.pyc
+ui/__pycache__/ui_mainwindow.cpython-312.pyc
+src/__pycache__/get_calendar_data.cpython-312.pyc
