@@ -22,5 +22,5 @@ TAMU-SPE Desktop was developed as a passion project combining love for my studen
 
 ![MacOS Notifications](MacOS/images/MacNotif.png)
 
-The application was written entirely in Python, compiled in C using Nuitka.
+TAMU-SPE Desktop is written entirely in Python, compiled in C using Nuitka. Download the app to send update suggestions!
 
