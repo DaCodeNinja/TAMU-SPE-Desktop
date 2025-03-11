@@ -4,11 +4,6 @@ Stay connected with the Texas A&M Society of Petroleum Engineers! TAMU-SPE Deskt
 
 ![TAMUSPE Desktop](MacOS/images/SPE_A_M_RGB_square.png)
 
-## Installation
-- [Windows 10 x64 Installer](https://github.com/DaCodeNinja/TAMUSPE-Desktop/releases/download/Windows10/TAMUSPE-Setup-Windows-x64.exe)
-- [MacOS-Intel-Installer]() - Coming soon
-- Note: Apple Silicon & Windows 11 are not yet tested but should theoretically work.
-
 ## 🚀 What is TAMU-SPE Desktop?
 
 TAMU-SPE Desktop is a handy app designed to keep Texas A&M SPE members informed and organized. It pulls event details directly from the TAMU-SPE Google Calendar, so you’ll always know what’s happening and when.
@@ -27,8 +22,8 @@ This app was built with one goal in mind — to make life easier for TAMU-SPE me
 
 Click below to download the app for your device:
   
-  - [Windows 10](https://github.com/DaCodeNinja/TAMUSPE-Desktop/releases/download/Windows10/TAMUSPE-Setup-Windows-x64.exe)
-  - [MacOS Intel Installer]()
+  - [Windows 10 x64 Installer](https://github.com/DaCodeNinja/TAMUSPE-Desktop/releases/download/Windows10/TAMUSPE-Setup-Windows-x64.exe)
+  - [MacOS Intel Installer]() - Coming soon
 
   📝 Note: Apple Silicon and Windows 11 are not yet tested but should theoretically work.
 
