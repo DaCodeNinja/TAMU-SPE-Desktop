@@ -1,7 +1,7 @@
 # TAMU-SPE Desktop
 Texas A&M Society of Petroleum Engineers' Members can stay up-to-date with all upcoming events and browse information, including push notifications for both Mac and Windows.
 
-![TAMUSPE Desktop](Windows/images/SPE_A_M_RGB_square.png)
+![TAMUSPE Desktop](MacOS/images/SPE_A_M_RGB_square.png)
 
 ## Installation
 - [Windows 10](https://github.com/TAMUSPE-Desktop/Windows/Deployment/Installer/TAMUSPE_SETUP.exe)
