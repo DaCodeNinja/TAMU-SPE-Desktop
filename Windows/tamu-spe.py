@@ -18,18 +18,16 @@ from src import changeyaml
 from win10toast_click import ToastNotifier
 import qdarktheme
 
-# import os
-# os.environ["QT_LOGGING_RULES"] = "*.debug=false"
-
-# Important:
-# You need to run the following command to generate the ui_form.py file
+# Run the following command to generate the ui_form.py file
 #     pyside6-uic form.ui -o ui_form.py, or
 #     pyside2-uic form.ui -o ui_form.py
 
-usersettings_filename = os.path.expanduser(os.path.join(os.getenv('LOCALAPPDATA'),
-                                                        'TAMUSPE/settings.yaml'))
-saved_data_filename = os.path.expanduser(os.path.join(os.getenv('LOCALAPPDATA'),
-                                                      'TAMUSPE/last_saved_data.parquet'))
+os.environ['NUITKA_ONEFILE_TEMP'] =  os.path.join(os.getenv('LOCALAPPDATA'), 'TAMU-SPE')
+
+usersettings_filename = os.path.expanduser(os.path.join(os.getenv('APPDATA'),
+                                                        'TAMU-SPE/settings.yaml'))
+saved_data_filename = os.path.expanduser(os.path.join(os.getenv('APPDATA'),
+                                                      'TAMU-SPE/last_saved_data.parquet'))
 
 splash_filename = os.path.join(os.path.dirname(__file__), 'src/splashscreen.ui')
 setting_filename = os.path.join(os.path.dirname(__file__), 'src/settings.yaml')
