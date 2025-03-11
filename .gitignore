@@ -51,3 +51,4 @@ TAMUSPE-Windows/src/__pycache__/store_userid_version.cpython-310.pyc
 TAMUSPE-Windows/src/__pycache__/ui_mainwindow.cpython-310.pyc
 Windows/User/settings.yaml
 Windows/last_saved_data.parquet
+Windows/User/last_cal_data.parquet

@@ -23,7 +23,7 @@ import qdarktheme
 #     pyside2-uic form.ui -o ui_form.py
 
 usersettings_filename = os.path.join(os.path.dirname(__file__), 'User/settings.yaml')
-saved_data_filename = os.path.join(os.path.dirname(__file__), 'last_saved_data.parquet')
+saved_data_filename = os.path.join(os.path.dirname(__file__), 'User/last_cal_data.parquet')
 splash_filename = os.path.join(os.path.dirname(__file__), 'src/splashscreen.ui')
 setting_filename = os.path.join(os.path.dirname(__file__), 'src/settings.yaml')
 setting_ui_filename = os.path.join(os.path.dirname(__file__), 'src/settings.ui')
