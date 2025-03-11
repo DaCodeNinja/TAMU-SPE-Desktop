@@ -53,3 +53,5 @@ Windows/User/settings.yaml
 Windows/last_saved_data.parquet
 Windows/User/last_cal_data.parquet
 Windows/User
+Windows/Deployment/TAMU-SPE.exe
+Windows/Deployment/Installer/TAMUSPE-Setup-Windows-x64.exe
