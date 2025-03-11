@@ -18,7 +18,6 @@ TAMU-SPE Desktop is a handy app designed to keep Texas A&M SPE members informed 
 
 ✔️ Works on both Mac and Windows
 
-
 This app was built with one goal in mind — to make life easier for TAMU-SPE members!
 
 ## 💾 How to Get Started
