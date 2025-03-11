@@ -1,5 +1,5 @@
 # TAMU-SPE Desktop
-Texas A&M Society of Petroleum Engineers' Members can stay up-to-date with all upcoming events and browse information, including push notifications for both Mac and Windows.
+Texas A&M Society of Petroleum Engineers' Members can stay up-to-date with all upcoming events and browse information, including push notifications for both Mac and Windows!
 
 ![TAMUSPE Desktop](MacOS/images/SPE_A_M_RGB_square.png)
 
