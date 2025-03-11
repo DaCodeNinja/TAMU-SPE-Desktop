@@ -64,7 +64,7 @@ TAMU-SPE Desktop was a passion project that combined my love for programming wit
 
 ## ⭐ Want to Help?
 
-Feedback and contributions are always welcome! If you have suggestions or run into issues, feel free to open an issue or submit a pull request on the GitHub repository.
+Your feedback and contributions are always welcome! If you have suggestions or encounter any issues, please open an issue or submit a pull request on our GitHub repository. You can also leave your comments directly in the application's settings.
 
 ## 👍 Thanks for supporting TAMU-SPE Desktop!
 
