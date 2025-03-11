@@ -12,15 +12,15 @@ TAMU-SPE Desktop was developed as a passion project combining love for my studen
 
 ## Windows
 
-![MacOS Notifications](images/Windows.png)
+![MacOS Notifications](Windows/images/Windows.png)
 
 ## MacOS
 
-![MacOS Notifications](images/Mac.png)
+![MacOS Notifications](MacOS/images/Mac.png)
 
 ## Notifications on MacOS
 
-![MacOS Notifications](images/MacNotif.png)
+![MacOS Notifications](MacOS/images/MacNotif.png)
 
 The application was written entirely in Python, compiled in C using Nuitka.
 
