@@ -1,6 +1,7 @@
 import shutil
 import sys
 import os
+import platform
 import pandas as pd
 from PySide6.QtCore import QUrl, QThread, QObject, Signal, Qt, QTimer, QCoreApplication, QSize, QFile
 from PySide6.QtGui import QDesktopServices, QFont, QColor, QIcon, QAction, QPalette, QGuiApplication, QMovie
@@ -53,9 +54,13 @@ class StartWorker(QObject):
 
                 else:
                     settings = changeyaml.pull(usersettings_filename)
-                    response = store_userid_version.send(key,
-                                                         f"{settings['user_id']}_windows",
-                                                         settings['version'])
+                    os = "Windows 10" if platform.system() == "Windows" and int(platform.version().split('.')[2]) < 22000 else "Windows 11"
+                    date = datetime.now().date().strftime("%m-%d-%Y")
+                    response = store_userid_version.send(auth_key=key,
+                                                         user_id=settings['user_id'],
+                                                         app_version=settings['version'],
+                                                         os=os,
+                                                         date=date)
                     if response == 'error':
                         print('store user error')
                     else:
@@ -218,9 +223,13 @@ class Widget(QMainWindow):
 
                 else:
                     settings = changeyaml.pull(usersettings_filename)
-                    response = store_userid_version.send(key,
-                                                         f"{settings['user_id']}_windows",
-                                                         settings['version'])
+                    os = "Windows 10" if platform.system() == "Windows" and int(platform.version().split('.')[2]) < 22000 else "Windows 11"
+                    date = datetime.now().date().strftime("%m-%d-%Y")
+                    response = store_userid_version.send(auth_key=key,
+                                                         user_id=settings['user_id'],
+                                                         app_version=settings['version'],
+                                                         os=os,
+                                                         date=date)
                     if response == 'error':
                         print('store user error')
                     else:
