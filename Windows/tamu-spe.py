@@ -22,13 +22,8 @@ import qdarktheme
 #     pyside6-uic form.ui -o ui_form.py, or
 #     pyside2-uic form.ui -o ui_form.py
 
-os.environ['NUITKA_ONEFILE_TEMP'] =  os.path.join(os.getenv('LOCALAPPDATA'), 'TAMU-SPE')
-
-usersettings_filename = os.path.expanduser(os.path.join(os.getenv('APPDATA'),
-                                                        'TAMU-SPE/settings.yaml'))
-saved_data_filename = os.path.expanduser(os.path.join(os.getenv('APPDATA'),
-                                                      'TAMU-SPE/last_saved_data.parquet'))
-
+usersettings_filename = os.path.join(os.path.dirname(__file__), 'User/settings.yaml')
+saved_data_filename = os.path.join(os.path.dirname(__file__), 'last_saved_data.parquet')
 splash_filename = os.path.join(os.path.dirname(__file__), 'src/splashscreen.ui')
 setting_filename = os.path.join(os.path.dirname(__file__), 'src/settings.yaml')
 setting_ui_filename = os.path.join(os.path.dirname(__file__), 'src/settings.ui')

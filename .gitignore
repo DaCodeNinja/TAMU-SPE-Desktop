@@ -49,3 +49,5 @@ TAMUSPE-Windows/src/__pycache__/resources_rc.cpython-310.pyc
 TAMUSPE-Windows/src/__pycache__/send_file.cpython-310.pyc
 TAMUSPE-Windows/src/__pycache__/store_userid_version.cpython-310.pyc
 TAMUSPE-Windows/src/__pycache__/ui_mainwindow.cpython-310.pyc
+Windows/User/settings.yaml
+Windows/last_saved_data.parquet

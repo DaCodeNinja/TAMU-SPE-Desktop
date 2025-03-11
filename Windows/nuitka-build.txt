@@ -1,4 +1,4 @@
 nuitka --standalone --enable-plugin=pyside6 --windows-icon-from-ico=Windows\images\TAMUSPE_Square.ico --windows-console-mode=attach --include-module=fastparquet --output-dir=Windows/Deployment --include-data-dir=Windows/src=src --output-filename=TAMU-SPE.exe --remove-output Windows/tamu-spe.py
 
-nuitka --onefile --enable-plugin=pyside6 --windows-icon-from-ico=Windows/images/TAMUSPE_Square.ico --windows-console-mode=attach --include-module=fastparquet --output-dir=Windows/Deployment --include-data-dir=Windows/src=src --output-filename=TAMU-SPE.exe --remove-output Windows/tamu-spe.py
+nuitka --onefile --onefile-tempdir-spec="{PROGRAM_DIR}/.tamuspe_files" --enable-plugin=pyside6 --windows-icon-from-ico=Windows/images/TAMUSPE_Square.ico --windows-console-mode=attach --include-module=fastparquet --output-dir=Windows/Deployment --include-data-dir=Windows/src=src --output-filename=TAMU-SPE.exe --remove-output Windows/tamu-spe.py
 
