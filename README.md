@@ -10,7 +10,7 @@ TAMU-SPE Desktop is a handy app designed to keep Texas A&M SPE members informed 
 
 ## 🌟 Why You’ll Love It:
 
-✔️ See all upcoming events at a glance
+✔️ See all upcoming events at a glance.
 ✔️ Get personalized push notifications so you never miss an event
 ✔️ Clean, simple design that’s easy to use
 ✔️ Works on both Mac and Windows
