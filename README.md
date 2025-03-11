@@ -4,7 +4,7 @@ Texas A&M Society of Petroleum Engineers' Members can stay up-to-date with all u
 ![TAMUSPE Desktop](MacOS/images/SPE_A_M_RGB_square.png)
 
 ## Installation
-- [Windows 10](https://github.com/TAMUSPE-Desktop/Windows/Deployment/Installer/TAMUSPE_SETUP.exe)
+- [Windows 10](https://github.com/DaCodeNinja/TAMUSPE-Desktop/blob/main/Windows/Deployment/Installer/TAMUSPE_SETUP.exe)
 - [MacOS Intel Installer](https://pub-58bc52c7aeb14c7993e4f6b166e44c74.r2.dev/TAMU-SPE.dmg)
 - Note: Apple Silicon & Windows 11 are not yet tested but should theoretically work.
 
