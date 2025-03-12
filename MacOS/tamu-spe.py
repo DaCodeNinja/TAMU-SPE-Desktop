@@ -1,19 +1,22 @@
 import sys
 import os
+import platform
+import shutil
 import pandas as pd
 from PySide6.QtCore import QUrl, QThread, QObject, Signal, Qt, QTimer, QCoreApplication, QSize
-from PySide6.QtGui import QDesktopServices, QFont, QColor, QIcon, QAction, QPalette, QGuiApplication
+from PySide6.QtGui import QDesktopServices, QFont, QColor, QIcon, QAction, QPalette, QGuiApplication, QMovie
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtWidgets import (QApplication, QMainWindow, QTableWidgetItem, QTextBrowser, QLabel,
                                QHeaderView, QSpinBox, QCheckBox, QMenu, QSystemTrayIcon, QMessageBox, QPushButton,
                                QPlainTextEdit, QStyleFactory)
-from ui.ui_mainwindow import Ui_MainWindow
+from src.ui_mainwindow import Ui_MainWindow
 from datetime import datetime, timedelta
 from src.get_calendar_data import data
 import time
 import uuid
+from src import store_userid_version
 import src.changeyaml as changeyaml
-#import pync ## <---- wont work on windows rn, update this
+import pync
 
 
 # import os
@@ -23,6 +26,79 @@ import src.changeyaml as changeyaml
 # You need to run the following command to generate the ui_form.py file
 #     pyside6-uic form.ui -o ui_form.py, or
 #     pyside2-uic form.ui -o ui_form.py
+
+
+usersettings_filename = os.path.join(os.path.dirname(__file__), 'User/settings.yaml')
+settings_filename = os.path.join(os.path.dirname(__file__), 'src/settings.yaml')
+last_saved_data = os.path.join(os.path.dirname(__file__), 'User/last_cal_data.parquet')
+infowidget_filename = os.path.join(os.path.dirname(__file__), 'src/info_widget.ui')
+settings_dialog_filename = os.path.join(os.path.dirname(__file__), 'src/settings.ui')
+feedback_dialog_filename = os.path.join(os.path.dirname(__file__), 'src/feedback.ui')
+splash_filename = os.path.join(os.path.dirname(__file__), 'src/splashscreen.ui')
+os_name = "MacOS"
+
+
+class StartWorker(QObject):
+    online = Signal()
+    offline = Signal()
+
+    def __init__(self):
+        super().__init__()
+
+    def start(self):
+        # online mode
+        try:
+            df = data()
+            df.to_parquet(last_saved_data)
+            self.online.emit()
+
+            if not changeyaml.pull(usersettings_filename)['saved_uid']:
+                from src import get_response_key
+                key = get_response_key.get()
+                if key == 'error':
+                    pass
+
+                else:
+                    settings = changeyaml.pull(usersettings_filename)
+                    date = datetime.now().date().strftime("%m-%d-%Y")
+                    response = store_userid_version.send(auth_key=key,
+                                                         user_id=settings['user_id'],
+                                                         app_version=settings['version'],
+                                                         os=os_name,
+                                                         date=date)
+                    if response == 'error':
+                        print('store user error')
+                    else:
+                        settings['saved_uid'] = True
+                        changeyaml.push(usersettings_filename, settings)
+                        print('uuid sent')
+
+        # offline mode
+        except Exception as e:
+            print(f"1 An exception occurred: {e}")
+            self.offline.emit()
+
+
+class EventCheckerWorker(QObject):
+    finished = Signal(bool)
+
+    def __init__(self):
+        super().__init__()
+
+    def start(self):
+        df = data()  # Assuming data() is your function to get the new dataframe
+        df_saved = pd.read_parquet(last_saved_data)
+        answer = False
+
+        if df.equals(df_saved):
+            print('data: no change')
+        else:
+            print("data: New Data")
+            df.to_parquet(last_saved_data)
+            answer = True
+
+        self.finished.emit(answer)
+
 
 class Worker(QObject):
     """
@@ -42,6 +118,58 @@ class Worker(QObject):
             self.data_fetched.emit(None)
 
 
+def create_user_folder():
+    if not os.path.exists(usersettings_filename):
+        os.makedirs(os.path.dirname(usersettings_filename), exist_ok=True)
+        shutil.copy(settings_filename, usersettings_filename)
+        settings = changeyaml.pull(usersettings_filename)
+        user_id = str(uuid.uuid4())
+        settings['user_id'] = user_id
+        changeyaml.push(usersettings_filename, settings)
+
+
+def enforce_dark_mode(app_):
+    app.setStyle(QStyleFactory.create("Fusion"))  # Set the Fusion style
+
+    # Now adjust the color palette for a dark theme
+    dark_palette = QPalette()
+
+    # Use darker shades for various palette roles
+    dark_palette.setColor(QPalette.Window, QColor(53, 53, 53))
+    dark_palette.setColor(QPalette.Window, QColor(53, 53, 53))
+    dark_palette.setColor(QPalette.WindowText, Qt.white)
+    dark_palette.setColor(QPalette.Base, QColor(25, 25, 25))
+    dark_palette.setColor(QPalette.AlternateBase, QColor(53, 53, 53))
+    dark_palette.setColor(QPalette.ToolTipBase, Qt.white)
+    dark_palette.setColor(QPalette.ToolTipText, Qt.white)
+    dark_palette.setColor(QPalette.Text, Qt.white)
+    dark_palette.setColor(QPalette.Button, QColor(53, 53, 53))
+    dark_palette.setColor(QPalette.ButtonText, Qt.white)
+    dark_palette.setColor(QPalette.BrightText, Qt.red)
+    dark_palette.setColor(QPalette.Link, QColor(42, 130, 218))
+    dark_palette.setColor(QPalette.Highlight, QColor(42, 130, 218))
+    dark_palette.setColor(QPalette.HighlightedText, Qt.black)
+
+    app.setPalette(dark_palette)
+    app.setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white; }")
+
+
+def is_dark_mode():
+    # Get the application's palette
+    app_palette = QGuiApplication.palette()
+
+    # Check the color of the window text and the window background
+    window_text_color = app_palette.color(QPalette.ColorRole.WindowText)
+    window_color = app_palette.color(QPalette.ColorRole.Window)
+
+    # Calculate the luminance (a measure of the brightness)
+    text_luminance = 0.299 * window_text_color.red() + 0.587 * window_text_color.green() + 0.114 * window_text_color.blue()
+    window_luminance = 0.299 * window_color.red() + 0.587 * window_color.green() + 0.114 * window_color.blue()
+
+    # A simple heuristic: if the text is brighter than the background, it's likely a dark mode
+    return text_luminance > window_luminance
+
+
 class Widget(QMainWindow):
     """
     This is the heart. All the code flows through here. This is the main window and executable.
@@ -54,45 +182,50 @@ class Widget(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
+        # Setup vars
         """ Grab the table element from the UI code we just "setup" , setup some filepaths"""
         self.table = self.ui.table
         self.df = None
-        self.settings_filename = os.path.join(os.path.dirname(__file__), 'src/settings.yaml')
-        self.infowidget_filename = os.path.join(os.path.dirname(__file__), 'ui/info_widget.ui')
-        self.settings_dialog_filename = os.path.join(os.path.dirname(__file__), 'ui/settings.ui')
-        self.feedback_dialog_filename = os.path.join(os.path.dirname(__file__), 'ui/feedback.ui')
 
         """ 
-        Gotta setup some pointers for the multi-tasking (threading) to work properly
+        Setup some pointers for the multi-tasking (threading) to work properly
         """
+        self.start_thread = None
+        self.start_worker = None
+        self.splash_dialog = None
+        self.splash_gif = None
         self.refresh_button_thread = None
         self.refresh_button_worker = None
+        self.event_checker_worker = None
+        self.event_checker_thread = None
+
+        self.previous_notif_settings = None
+        self.event_refresh_started = False
+        self.background_running = False
+        self.background_quit = False
+        self.online = None
 
         self.refresh_daily_timer = QTimer(self)
         self.notification_timer = QTimer(self)
-
-        self.previous_notif_settings = None
-        self.background_running = False
-        self.background_quit = False
+        self.latest_event_timer = QTimer(self)
 
         self.ui.logo.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("http://www.tamuspe.org")))
         self.ui.refresh.clicked.connect(self.refresh_data)
+        self.table.setMouseTracking(True)
         self.table.itemDoubleClicked.connect(self.item_double_clicked)
         self.ui.settings.clicked.connect(self.open_settings)
 
+        # Start
         self.app_start()
+    
+    def app_start(self):
+        create_user_folder()
+        self.dark_or_light_mode()
+        self.keep_in_background()
         self.update_data()
         self.refresh_table_daily()
-        self.keep_in_background()
 
-    def app_start(self):
-        if changeyaml.pull(self.settings_filename)['first_open']:
-            settings = changeyaml.pull(self.settings_filename)
-            user_id = str(uuid.uuid4())
-            settings['user_id'] = user_id
-            settings['first_open'] = False
-            changeyaml.push(self.settings_filename, settings)
-
+    def dark_or_light_mode(self):
         if is_dark_mode():
             print("System is in dark mode")
         else:
@@ -107,46 +240,105 @@ class Widget(QMainWindow):
             self.ui.settings.setIcon(icon1)
             self.ui.settings.setIconSize(QSize(16, 16))
 
+    def splash_screen(self):
+        loader = QUiLoader()
+        self.splash_dialog = loader.load(splash_filename, self)
+        self.splash_gif = self.splash_dialog.findChild(QLabel, 'label_2')
+        self.splash_gif.setFixedSize(25, 25)
+
+        # Load GIF
+        movie = QMovie(os.path.join(os.path.dirname(__file__), 'src/loading.gif'))
+        movie.setScaledSize(QSize().scaled(25, 25, Qt.KeepAspectRatio))
+        self.splash_gif.setMovie(movie)
+        movie.start()
+
+        self.splash_dialog.show()
+
+    def splash_ready(self):
+        self.splash_gif.setFixedSize(50, 25)
+        self.splash_gif.setText('Ready!')
+        QTimer.singleShot(500, self.close_splash_dialog)
+
+    def close_splash_dialog(self):
+        self.splash_dialog.close()
+
+    def background_start(self):
+        self.start_worker = StartWorker()
+        self.start_thread = QThread(self)
+        self.start_worker.moveToThread(self.start_thread)
+        self.start_worker.online.connect(self.online_mode)
+        self.start_worker.offline.connect(self.offline_mode)
+        self.start_thread.started.connect(self.start_worker.start)
+        self.start_thread.start()
+
+    def online_mode(self):
+        print('online')
+        self.online = True
+        self.ui.offline_label.setText('')
+        self.df = pd.read_parquet(last_saved_data)
+        self.update_table()
+        self.latest_event_refresh_timer()
+        self.start_thread.quit()
+        self.splash_ready()
+
+    def offline_mode(self):
+        print('offline')
+        self.online = False
+        self.ui.offline_label.setText('Offline Mode')
+        try:
+            self.df = pd.read_parquet(last_saved_data)
+            self.update_table()
+            self.latest_event_refresh_timer()
+        except:
+            pass
+        finally:
+            self.start_thread.quit()
+            self.splash_ready()
+
     def update_data(self):
+        # online mode
         try:
             self.df = data()
-            self.df.to_parquet('last_saved_data.parquet')
-            self.start_notification_timer()
+            self.df.to_parquet(last_saved_data)
             self.update_table()
+            self.ui.offline_label.setText('')
+            self.online = True
 
-            if not changeyaml.pull(self.settings_filename)['saved_username']:
-
-                import src.get_response_key as get_response_key
+            if not changeyaml.pull(usersettings_filename)['saved_uid']:
+                from src import get_response_key
                 key = get_response_key.get()
                 if key == 'error':
                     pass
 
                 else:
-                    settings = changeyaml.pull(self.settings_filename)
-                    import store_userid_version
-                    response = store_userid_version.send(key, settings['user_id'], settings['version'])
+                    settings = changeyaml.pull(usersettings_filename)
+                    date = datetime.now().date().strftime("%m-%d-%Y")
+                    response = store_userid_version.send(auth_key=key,
+                                                         user_id=settings['user_id'],
+                                                         app_version=settings['version'],
+                                                         os=os_name,
+                                                         date=date)
                     if response == 'error':
-                        pass
+                        print('store user error')
                     else:
-                        settings['saved_username'] = True
-                        changeyaml.push(self.settings_filename, settings)
+                        settings['saved_uid'] = True
+                        changeyaml.push(usersettings_filename, settings)
                         print('uuid sent')
 
+        # offline mode
         except Exception as e:
-            print(f"An exception occurred: {e}")
-            self.ui.date.setText(e)
-            self.ui.offline_label.setText('Offline Mode / Error')
-            if changeyaml.pull(self.settings_filename)['notifications']:
-                self.ui.offline_notification.setText('Notifications Disabled')
+            print(f"2 An exception occurred: {e}")
+            self.ui.offline_label.setText('Offline Mode')
+            self.online = False
 
             try:
-                self.df = pd.read_parquet('last_saved_data.parquet')
+                self.df = pd.read_parquet(last_saved_data)
                 self.update_table()
             except:
                 pass
 
     def update_table(self):
-        df = self.df.loc[:, ['Title', 'Location', 'Date(s)', 'Time Span', 'Description']]
+        df = self.df.loc[:, ['Title', 'Location', 'Date(s)', 'Time(s)', 'Description']]
         df_duration = self.df.loc[:, ['Duration', 'start_time', 'end_time']]
         cols = df.columns
 
@@ -155,10 +347,10 @@ class Widget(QMainWindow):
         self.table.setRowCount(len(df))
 
         font = QFont()
-        font.setPointSize(14)
+        font.setPointSize(11)
         font.setBold(True)
 
-        self.table.setHorizontalHeaderLabels(cols[:-1])
+        self.table.setHorizontalHeaderLabels(cols)
         self.table.horizontalHeader().setFont(font)
 
         # text_color = QColor(0, 81, 166)
@@ -185,19 +377,12 @@ class Widget(QMainWindow):
                         self.table.setItem(row, col, item)
 
                     else:
-                        header_item = QTableWidgetItem("")
-                        self.table.setHorizontalHeaderItem(col, header_item)
-                        font = QFont()
-                        font.setPointSize(14)
-                        font.setBold(True)
-                        item = QTableWidgetItem('Double-Click for Info')
-                        # text_color = QColor(90, 164, 116)  # green // nah i like the polished look better
-                        # item.setForeground(text_color)
-
-                        item.setFont(font)
+                        item = QTableWidgetItem('Location')
+                        text_color = QColor(90, 164, 116)  # green
+                        item.setForeground(text_color)
                         item.setTextAlignment(Qt.AlignCenter)
+                        item.setStatusTip("Double Click")
                         self.table.setItem(row, col, item)
-                        self.table.column
 
                 elif col == 3:
                     duration = (df_duration.iloc[row, 2] - df_duration.iloc[row, 1]).days
@@ -224,18 +409,12 @@ class Widget(QMainWindow):
                         self.table.setItem(row, col, item)
 
                     else:
-                        header_item = QTableWidgetItem("")
-                        self.table.setHorizontalHeaderItem(col, header_item)
-
-                        font = QFont()
-                        font.setPointSize(14)
-                        # font.setBold(True)
-                        item = QTableWidgetItem("Double-Click for Info")
+                        item = QTableWidgetItem("Description")
                         # text_color = QColor(165, 43, 57)  # red
-                        # text_color = QColor(90, 164, 116)  # green
-                        # item.setForeground(text_color)
-                        item.setFont(font)
+                        text_color = QColor(90, 164, 116)  # green
+                        item.setForeground(text_color)
                         item.setTextAlignment(Qt.AlignCenter)
+                        item.setStatusTip("Double Click")
                         self.ui.table.setItem(row, col, item)
 
                 else:
@@ -245,26 +424,24 @@ class Widget(QMainWindow):
 
         self.table.resizeColumnsToContents()
         self.table.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeMode.Stretch)
+
+        for col in range(self.table.horizontalHeader().count() - 1):
+            current_size = self.table.horizontalHeader().sectionSize(col)
+            self.table.horizontalHeader().resizeSection(col, current_size + 15)
+
         print('table updated')
 
+    def event_checker(self, answer):
+        if answer:
+            self.df = pd.read_parquet(last_saved_data)
+            self.update_table()
+
+        self.event_checker_thread.quit()
+
     def item_double_clicked(self, item):
-        if (self.table.item(item.row(), 4).text() == "Double-Click for Info" or
-                self.table.item(item.row(), 1).text() == "Double-Click for Info"):
-
-            df_duration = self.df.loc[item.row(), ['start_time', 'end_time']]
-            duration = (df_duration.iloc[1] - df_duration.iloc[0]).days
-            if duration > 1:
-                multi_day = [df_duration.iloc[0], df_duration.iloc[1]]
-            else:
-                multi_day = None
-
-            title = self.df.loc[item.row(), ['Title']].iloc[0]
-            info = self.df.loc[item.row(), ['Description']].iloc[0]
-            location = self.df.loc[item.row(), ['Location']].iloc[0]
-            dates = self.table.item(item.row(), 2).text()
-            times = self.table.item(item.row(), 3).text()
-
-            self.open_info_widget(title, info, location, dates, times, item.row(), multi_day)
+        if (self.table.item(item.row(), 1).text() == "Location" or
+                self.table.item(item.row(), 4).text() == "Description"):
+            self.open_info_widget(item.row())
 
     def refresh_data(self):
         self.ui.refresh.setEnabled(False)  # make the refresh button greyed out
@@ -281,36 +458,33 @@ class Widget(QMainWindow):
     def handle_data_fetched(self, fetched_data):
         if fetched_data is not None:
             self.df = fetched_data
-            self.ui.refresh.setEnabled(True)
+            self.df.to_parquet(last_saved_data)
             self.update_table()
+            self.ui.refresh.setEnabled(True)
             self.ui.offline_label.setText('')
             self.ui.offline_notification.setText('')
-            self.df.to_parquet('last_saved_data.parquet')
+            self.online = True
 
         else:
             self.refresh_button_thread.quit()
             self.refresh_button_thread.wait()
             self.ui.refresh.setEnabled(True)
+            self.ui.offline_label.setText('Offline Mode')
+            self.online = False
+
+            try:
+                self.df = pd.read_parquet(last_saved_data)
+                self.update_table()
+            except:
+                pass
 
     def refresh_table_daily(self):
         # Set the date and refresh the table every day
         today_date = datetime.now().strftime("%A, %m-%d-%Y")
         self.ui.date.setText(today_date)
+        self.daily_table_refresh_timer()
 
-        if changeyaml.pull(self.settings_filename)['refresh_table_daily']:
-            if self.refresh_daily_timer.isActive():
-                self.refresh_daily_timer.stop()
-                self.refresh_daily_timer.timeout.disconnect()
-                print('refresh_table_daily timer set to restart')
-
-            self.table_refresh_timer()
-
-        else:
-            if self.refresh_daily_timer.isActive():
-                self.refresh_daily_timer.stop()
-                print('stopped refresh_table_daily timer')
-
-    def table_refresh_timer(self):
+    def daily_table_refresh_timer(self):
 
         def handle_timeout():
             # Set the timer to trigger every 24 hours
@@ -330,8 +504,49 @@ class Widget(QMainWindow):
         print('refresh_table_daily timer started')
         print('next day:', self.refresh_daily_timer.remainingTime() / 1000 / 60 / 60, 'hours')
 
+    def latest_event_refresh_timer(self):
+
+        def handle_timeout():
+            new_now = datetime.now()
+            new_next_event_datetime = None
+
+            for new_index, new_row in self.df.iterrows():
+                if new_row['End Time'] != '--':
+                    new_date_string = f"{new_row['End Date']} {new_row['End Time']}"
+                    new_date_time_obj = datetime.strptime(new_date_string, "%m/%d/%Y %I:%M %p")
+                    if new_date_time_obj >= new_now:
+                        new_next_event_datetime = new_date_time_obj
+                        break
+
+            new_interval = (new_next_event_datetime - new_now).total_seconds() * 1000  # Convert seconds to milliseconds
+            self.latest_event_timer.setInterval(new_interval)
+            self.latest_event_timer.start()  # Restart the timer
+            self.refresh_data()
+            print('next event:', self.latest_event_timer.remainingTime() / 1000 / 60 / 60, 'hours')
+
+        self.latest_event_timer.timeout.connect(handle_timeout)
+
+        now = datetime.now()
+        next_event_datetime = None
+
+        for index, row in self.df.iterrows():
+            if row['End Time'] != '--':
+                date_string = f"{row['End Date']} {row['End Time']}"
+                date_time_obj = datetime.strptime(date_string, "%m/%d/%Y %I:%M %p")
+                if date_time_obj >= now:
+                    next_event_datetime = date_time_obj
+                    break
+
+        interval = (next_event_datetime - now).total_seconds() * 1000  # Convert seconds to milliseconds
+        self.latest_event_timer.setInterval(interval)  # Set the timer to trigger every 24 hours
+        self.latest_event_timer.setSingleShot(True)  # Adjust the remaining time to the beginning of the next midnight
+        self.latest_event_timer.start()
+        self.event_refresh_started = True
+        print('latest_event_timer started')
+        print('next event:', self.latest_event_timer.remainingTime() / 1000 / 60 / 60, 'hours')
+
     def start_notification_timer(self):
-        if changeyaml.pull(self.settings_filename)['notifications']:
+        if changeyaml.pull(usersettings_filename)['notifications']:
             if self.notification_timer.isActive():
                 self.notification_timer.stop()
                 self.notification_timer.timeout.disconnect()
@@ -345,7 +560,6 @@ class Widget(QMainWindow):
                 print('stopped notification timer')
 
     def set_notification_timer(self):
-
         def handle_timeout():
             # Set the timer to trigger every minute
             self.notification_timer.setInterval(60 * 1000)  # 60 seconds in milliseconds
@@ -374,21 +588,46 @@ class Widget(QMainWindow):
         # print('time till next minute:', self.notification_timer.remainingTime() / 1000, 'seconds')
         # print('time till next day:', self.refresh_daily_timer.remainingTime() / 1000 / 60 / 60, 'hours')
 
-        start_time = self.df['start_time'].iloc[0]
+        if not self.online:
+            self.update_data()
 
-        title = self.table.item(0, 0).text()
-        location = self.table.item(0, 1).text()
-        date = self.table.item(0, 2).text()
-        event_time = self.table.item(0, 3).text()
+        else:
+            self.event_checker_worker = EventCheckerWorker()
+            self.event_checker_thread = QThread(self)
+            self.event_checker_worker.moveToThread(self.event_checker_thread)
+            self.event_checker_worker.finished.connect(self.event_checker)
+            self.event_checker_thread.started.connect(self.event_checker_worker.start)
+            self.event_checker_thread.start()
+
+        now = datetime.now()
+        index = 0
+
+        for index_, row in self.df.iterrows():
+            if row['End Time'] != '--':
+                date_string = f"{row['Start Date']} {row['Start Time']}"
+                date_time_obj = datetime.strptime(date_string, "%m/%d/%Y %I:%M %p")
+                if date_time_obj >= now:
+                    index = index_
+                    break
+
+        start_time = self.df['start_time'].iloc[index]
+
+        title = self.table.item(index, 0).text()
+        location = self.table.item(index, 1).text()
+        date = self.table.item(index, 2).text()
+        event_time = self.table.item(index, 3).text()
         message = f"Where: {location}\nDate: {date}\nTime: {event_time}"
 
         timezone_info = start_time.tzinfo
         current_datetime = datetime.now(timezone_info)
 
+        start_time = start_time.replace(second=0, microsecond=0)
+        current_datetime = current_datetime.replace(second=0, microsecond=0)
+
         time_difference = start_time - current_datetime
 
-        notification_hours = changeyaml.pull(self.settings_filename)['notification_hours']
-        notification_days = changeyaml.pull(self.settings_filename)['notification_days']
+        notification_hours = changeyaml.pull(usersettings_filename)['notification_hours']
+        notification_days = changeyaml.pull(usersettings_filename)['notification_days']
 
         if test:
             pync.notify(title=title, subtitle='Registration Required',
@@ -396,40 +635,58 @@ class Widget(QMainWindow):
 
         if location != "--":
 
-            if changeyaml.pull(self.settings_filename)['days']:
+            if changeyaml.pull(usersettings_filename)['days']:
                 print('next day notification:', time_difference - timedelta(days=notification_days))
-                if notification_days == 1:
-                    subtitle = 'Starts in: 1 Day, Registration Required'
-                else:
-                    subtitle = f'Starts in: {notification_days} Days, Registration Required'
 
                 if time_difference == timedelta(days=notification_days):
+                    if notification_days == 1:
+                        subtitle = 'Starts in: 1 Day, Registration Required'
+                    else:
+                        subtitle = f'Starts in: {notification_days} Days, Registration Required'
+
                     pync.notify(title=title, subtitle=subtitle,
                                 message=message, open='https://www.tamuspe.org/calendar')
 
                     print(f'The start time is less than {notification_days} days away from the current time.')
 
-            if changeyaml.pull(self.settings_filename)['hours']:
+
+            if changeyaml.pull(usersettings_filename)['hours']:
                 print('next hour notification:', time_difference - timedelta(hours=notification_hours))
-                if notification_hours == 1:
-                    subtitle = 'Starts in: 1 Hour'
-                else:
-                    subtitle = f'Starts in: {notification_hours} Hours'
 
                 if time_difference == timedelta(hours=notification_hours):
+
+                    if notification_hours == 1:
+                        subtitle = 'Starts in: 1 Hour'
+                    else:
+                        subtitle = f'Starts in: {notification_hours} Hours'
+
+                    
                     pync.notify(title=title, subtitle=subtitle,
                                 message=message, open='https://www.tamuspe.org/calendar')
 
                     print(f'The start time is less than {notification_hours} hours away from the current time.')
 
-    def open_info_widget(self, title, info, location, dates, times, row, multi_day):
+    def open_info_widget(self, row):
         print('open info widget:', row + 1)
         loader = QUiLoader()
-        info_dialog = loader.load(self.infowidget_filename, self)
+        info_dialog = loader.load(infowidget_filename, self)
         info_textbox = info_dialog.findChild(QTextBrowser, 'info')
         location_textbox = info_dialog.findChild(QTextBrowser, 'location')
         date_label = info_dialog.findChild(QLabel, 'date')
         time_label = info_dialog.findChild(QLabel, 'time')
+
+        df_duration = self.df.loc[row, ['start_time', 'end_time']]
+        duration = (df_duration.iloc[1] - df_duration.iloc[0]).days
+        if duration > 1:
+            multi_day = [df_duration.iloc[0], df_duration.iloc[1]]
+        else:
+            multi_day = None
+
+        title = self.df.loc[row, ['Title']].iloc[0]
+        info = self.df.loc[row, ['Description']].iloc[0]
+        location = self.df.loc[row, ['Location']].iloc[0]
+        dates = self.table.item(row, 2).text()
+        times = self.table.item(row, 3).text()
 
         if multi_day is not None:
             input_date1 = multi_day[0].strftime("%m/%d/%Y")
@@ -479,7 +736,7 @@ class Widget(QMainWindow):
     def open_settings(self):
         tim = time.time()
         loader = QUiLoader()
-        settings_dialog = loader.load(self.settings_dialog_filename, self)
+        settings_dialog = loader.load(settings_dialog_filename, self)
         notif_bool_cb = settings_dialog.findChild(QCheckBox, 'set_notification')
         background_bool_cb = settings_dialog.findChild(QCheckBox, 'set_background')
         days_cb = settings_dialog.findChild(QCheckBox, 'days_cb')
@@ -490,7 +747,7 @@ class Widget(QMainWindow):
         feedback_button = settings_dialog.findChild(QPushButton, 'feedback')
 
         def load_current_settings():
-            cur_set = changeyaml.pull(self.settings_filename)
+            cur_set = changeyaml.pull(usersettings_filename)
             self.previous_notif_settings = cur_set.copy()
             notif_bool_cb.setChecked(cur_set['notifications'])
             background_bool_cb.setChecked(cur_set['open_in_background'])
@@ -513,7 +770,7 @@ class Widget(QMainWindow):
             cur_set['days'] = days
             cur_set['hours'] = hours
 
-            changeyaml.push(self.settings_filename, cur_set)
+            changeyaml.push(usersettings_filename, cur_set)
             print(cur_set)
 
             if self.previous_notif_settings != cur_set:
@@ -588,7 +845,7 @@ class Widget(QMainWindow):
 
     def feedback_dialog(self):
         loader = QUiLoader()
-        feedback_dialog = loader.load(self.feedback_dialog_filename, self)
+        feedback_dialog = loader.load(feedback_dialog_filename, self)
         feedback_edit = feedback_dialog.findChild(QPlainTextEdit, 'plainTextEdit')
         status = feedback_dialog.findChild(QLabel, 'status')
         send_btn = feedback_dialog.findChild(QPushButton, 'send')
@@ -596,7 +853,7 @@ class Widget(QMainWindow):
 
         def send():
             print('feedback: send')
-            user_id = changeyaml.pull(self.settings_filename)['user_id']
+            user_id = changeyaml.pull(usersettings_filename)['user_id']
             filename = f'{user_id}_{datetime.now().strftime("%Y-%m-%d_%I:%M:%S%p")}.txt'
             text = feedback_edit.toPlainText()
 
@@ -749,48 +1006,6 @@ class Widget(QMainWindow):
                 print('notification_timer active:', self.notification_timer.isActive())
 
             super().closeEvent(event)
-
-
-def enforce_dark_mode(app_):
-    app.setStyle(QStyleFactory.create("Fusion"))  # Set the Fusion style
-
-    # Now adjust the color palette for a dark theme
-    dark_palette = QPalette()
-
-    # Use darker shades for various palette roles
-    dark_palette.setColor(QPalette.Window, QColor(53, 53, 53))
-    dark_palette.setColor(QPalette.Window, QColor(53, 53, 53))
-    dark_palette.setColor(QPalette.WindowText, Qt.white)
-    dark_palette.setColor(QPalette.Base, QColor(25, 25, 25))
-    dark_palette.setColor(QPalette.AlternateBase, QColor(53, 53, 53))
-    dark_palette.setColor(QPalette.ToolTipBase, Qt.white)
-    dark_palette.setColor(QPalette.ToolTipText, Qt.white)
-    dark_palette.setColor(QPalette.Text, Qt.white)
-    dark_palette.setColor(QPalette.Button, QColor(53, 53, 53))
-    dark_palette.setColor(QPalette.ButtonText, Qt.white)
-    dark_palette.setColor(QPalette.BrightText, Qt.red)
-    dark_palette.setColor(QPalette.Link, QColor(42, 130, 218))
-    dark_palette.setColor(QPalette.Highlight, QColor(42, 130, 218))
-    dark_palette.setColor(QPalette.HighlightedText, Qt.black)
-
-    app.setPalette(dark_palette)
-    app.setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white; }")
-
-
-def is_dark_mode():
-    # Get the application's palette
-    app_palette = QGuiApplication.palette()
-
-    # Check the color of the window text and the window background
-    window_text_color = app_palette.color(QPalette.ColorRole.WindowText)
-    window_color = app_palette.color(QPalette.ColorRole.Window)
-
-    # Calculate the luminance (a measure of the brightness)
-    text_luminance = 0.299 * window_text_color.red() + 0.587 * window_text_color.green() + 0.114 * window_text_color.blue()
-    window_luminance = 0.299 * window_color.red() + 0.587 * window_color.green() + 0.114 * window_color.blue()
-
-    # A simple heuristic: if the text is brighter than the background, it's likely a dark mode
-    return text_luminance > window_luminance
 
 
 if __name__ == "__main__":

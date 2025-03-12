@@ -39,8 +39,8 @@ def get_cal_data(url: str) -> list:
                 event_details = {
                     'start_time': time_start_utc.astimezone(tz),
                     'end_time': time_end_utc.astimezone(tz),
-                    'Title': summary,
-                    'Location': location,
+                    'Title': str(summary),
+                    'Location': str(location),
                     'Description': description,
                     'Links': []
                 }
@@ -60,7 +60,7 @@ def events_to_df(events: list) -> pd.DataFrame:
     df = pd.DataFrame(events)
 
     # Assuming 'start_time' and 'end_time' are in datetime format
-    df['Duration'] = df.apply(lambda row:
+    df.loc[:, 'Duration'] = df.apply(lambda row:
                               'All Day' if (row['end_time'] - row['start_time']).days == 1
                               else f'{(row["end_time"] - row["start_time"]).days} Days' if (row["end_time"] - row[
                                   "start_time"]).days > 1
@@ -69,31 +69,34 @@ def events_to_df(events: list) -> pd.DataFrame:
     date_format = '%m/%d/%Y'  # month-day-year
     time_format = '%I:%M %p'  # hour:minute AM/PM
 
-    df['Start Date'] = df.apply(
+    df.loc[:, 'Start Date'] = df.apply(
         lambda row: row['start_time'].strftime(date_format) if row['Duration'] == 'All Day' else row[
             'start_time'].strftime(date_format), axis=1)
-    df['End Date'] = df.apply(
+
+    df.loc[:, 'End Date'] = df.apply(
         lambda row: row['start_time'].strftime(date_format) if row['Duration'] == 'All Day' else row[
             'end_time'].strftime(date_format), axis=1)
-    df['Start Time'] = df.apply(
+
+    df.loc[:, 'Start Time'] = df.apply(
         lambda row: '--' if row['Duration'] == 'All Day' else row['start_time'].strftime(time_format), axis=1)
-    df['End Time'] = df.apply(
+
+    df.loc[:, 'End Time'] = df.apply(
         lambda row: '--' if row['Duration'] == 'All Day' else row['end_time'].strftime(time_format), axis=1)
 
-    df['Date(s)'] = df.apply(lambda row: str(row['Start Date']) if row['End Date'] == row['End Date']
-                             else f"{row['Start Date']} - {row['End Date']}", axis=1)
+    df.loc[:, 'Date(s)'] = df.apply(lambda row: str(row['Start Date']) if row['End Date'] == row['Start Date']
+                                    else f"{row['Start Date']} - {row['End Date']}", axis=1)
 
-    df['Time Span'] = df.apply(lambda row: f"{row['Start Time']} - {row['End Time']}"
-                          if row['Start Time'] != "--" else "--", axis=1)
+    df.loc[:, 'Time(s)'] = df.apply(lambda row: f"{row['Start Time']} - {row['End Time']}"
+                                    if row['Start Time'] != "--" else "--", axis=1)
 
     duration = df.pop('Duration')
-    df['Duration'] = duration
+    df.loc[:, 'Duration'] = duration
 
     description = df.pop('Description')
-    df['Description'] = description
+    df.loc[:, 'Description'] = description
 
     links = df.pop('Links')
-    df['Links'] = links
+    df.loc[:, 'Links'] = links
 
     df = df.sort_values(by='start_time').reset_index(drop=True)
 
