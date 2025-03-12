@@ -62,10 +62,6 @@ TAMU-SPE Desktop was a passion project that combined my love for programming wit
 
 ✅ Enhance calendar filtering options
 
-## ⭐ Want to Contribute?
-
-Your feedback and contributions are always welcome! If you have suggestions or encounter any issues, please open an issue or submit a pull request on our GitHub repository. You can also leave your comments directly in the application's settings.
-
 ## 👍 Thanks!
 
 This project was built with heart for the Texas A&M SPE community. Thank you for being part of it!
