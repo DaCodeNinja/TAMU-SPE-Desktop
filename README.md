@@ -62,6 +62,6 @@ TAMU-SPE Desktop was a passion project that combined my love for programming wit
 
 ✅ Enhance calendar filtering options
 
-## 👍 Thanks!
+## 👍 Thanks and Gig 'Em
 
 This project was built with heart for the Texas A&M SPE community. Thank you for being part of it!
