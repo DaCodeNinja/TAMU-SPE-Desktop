@@ -46,7 +46,7 @@ class StartWorker(QObject):
             df.to_parquet(saved_data_filename)
             self.online.emit()
 
-            if not changeyaml.pull(usersettings_filename)['saved_username']:
+            if not changeyaml.pull(usersettings_filename)['saved_uid']:
                 from src import get_response_key
                 key = get_response_key.get()
                 if key == 'error':
@@ -64,7 +64,7 @@ class StartWorker(QObject):
                     if response == 'error':
                         print('store user error')
                     else:
-                        settings['saved_username'] = True
+                        settings['saved_uid'] = True
                         changeyaml.push(usersettings_filename, settings)
                         print('uuid sent')
 
@@ -93,6 +93,20 @@ class EventCheckerWorker(QObject):
             answer = True
 
         self.finished.emit(answer)
+
+
+class Worker(QObject):
+    finished = Signal()
+    data_fetched = Signal(object)
+
+    def get_data(self):
+        try:
+            fetched_data = data()  # assuming 'data' function is long-running
+            self.data_fetched.emit(fetched_data)
+            self.finished.emit()
+
+        except:
+            self.data_fetched.emit(None)
 
 
 def create_user_folder():
@@ -215,7 +229,7 @@ class Widget(QMainWindow):
             self.ui.offline_label.setText('')
             self.online = True
 
-            if not changeyaml.pull(usersettings_filename)['saved_username']:
+            if not changeyaml.pull(usersettings_filename)['saved_uid']:
                 from src import get_response_key
                 key = get_response_key.get()
                 if key == 'error':
@@ -233,7 +247,7 @@ class Widget(QMainWindow):
                     if response == 'error':
                         print('store user error')
                     else:
-                        settings['saved_username'] = True
+                        settings['saved_uid'] = True
                         changeyaml.push(usersettings_filename, settings)
                         print('uuid sent')
 
@@ -547,7 +561,6 @@ class Widget(QMainWindow):
                 print('stopped notification timer')
 
     def set_notification_timer(self):
-
         def handle_timeout():
             # Set the timer to trigger every minute
             self.notification_timer.setInterval(60 * 1000)  # 60 seconds in milliseconds
@@ -963,36 +976,6 @@ class Widget(QMainWindow):
                 print('notification_timer active:', self.notification_timer.isActive())
 
             super().closeEvent(event)
-
-
-class Worker(QObject):
-    finished = Signal()
-    data_fetched = Signal(object)
-
-    def get_data(self):
-        try:
-            fetched_data = data()  # assuming 'data' function is long-running
-            self.data_fetched.emit(fetched_data)
-            self.finished.emit()
-
-        except:
-            self.data_fetched.emit(None)
-
-
-def is_dark_mode():
-    # Get the application's palette
-    app_palette = QGuiApplication.palette()
-
-    # Check the color of the window text and the window background
-    window_text_color = app_palette.color(QPalette.ColorRole.WindowText)
-    window_color = app_palette.color(QPalette.ColorRole.Window)
-
-    # Calculate the luminance (a measure of the brightness)
-    text_luminance = 0.299 * window_text_color.red() + 0.587 * window_text_color.green() + 0.114 * window_text_color.blue()
-    window_luminance = 0.299 * window_color.red() + 0.587 * window_color.green() + 0.114 * window_color.blue()
-
-    # A simple heuristic: if the text is brighter than the background, it's likely a dark mode
-    return text_luminance > window_luminance
 
 
 if __name__ == "__main__":

@@ -4,6 +4,6 @@ notification_days: 2
 notification_hours: 2
 notifications: true
 open_in_background: true
-saved_username: false
+saved_uid: false
 user_id: None
 version: 1.0.0
