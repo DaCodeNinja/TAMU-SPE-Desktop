@@ -55,3 +55,11 @@ Windows/User/last_cal_data.parquet
 Windows/User
 Windows/Deployment/TAMU-SPE.exe
 Windows/Deployment/Installer/TAMUSPE-Setup-Windows-x64.exe
+MacOS/src/__pycache__/changeyaml.cpython-311.pyc
+MacOS/src/__pycache__/get_calendar_data.cpython-311.pyc
+MacOS/src/__pycache__/get_response_key.cpython-311.pyc
+MacOS/src/__pycache__/resources_rc.cpython-311.pyc
+MacOS/src/__pycache__/store_userid_version.cpython-311.pyc
+MacOS/src/__pycache__/ui_mainwindow.cpython-311.pyc
+MacOS/User/last_cal_data.parquet
+MacOS/User/settings.yaml
