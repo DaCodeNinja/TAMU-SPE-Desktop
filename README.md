@@ -4,7 +4,7 @@ Stay connected with the Texas A&M Society of Petroleum Engineers! TAMU-SPE Deskt
 
 ![TAMUSPE Desktop](MacOS/images/SPE_A_M_RGB_square.png)
 
-## 🚀 What is TAMU-SPE Desktop?
+## 🚀 So... What is TAMU-SPE Desktop?
 
 TAMU-SPE Desktop is a handy app designed to keep Texas A&M SPE members informed and organized. It pulls event details directly from the TAMU-SPE Google Calendar, so you’ll always know what’s happening and when.
 
@@ -48,9 +48,9 @@ After installing, enable notifications to stay updated on upcoming events. You c
 
 ![MacOS Notifications](MacOS/images/MacNotif.png)
 
-## 👋 About the Developer
+## 👋 Howdy
 
-Howdy! My name is Alberto Christian Alvarez, a proud member of the Fightin' Texas Aggie Class of 2025 and former Secretary (2023–2024) for the Texas A&M Society of Petroleum Engineers.
+My name is Alberto Christian Alvarez, a proud member of the Fightin' Texas Aggie Class of 2025 and former Secretary (2023–2024) for the Texas A&M Society of Petroleum Engineers.
 
 TAMU-SPE Desktop was a passion project that combined my love for programming with my dedication to TAMU-SPE. My goal was to create a tool that makes it easier for members to stay connected and never miss out on important events.
 
@@ -62,10 +62,10 @@ TAMU-SPE Desktop was a passion project that combined my love for programming wit
 
 ✅ Enhance calendar filtering options
 
-## ⭐ Want to Help?
+## ⭐ Want to Contribute?
 
 Your feedback and contributions are always welcome! If you have suggestions or encounter any issues, please open an issue or submit a pull request on our GitHub repository. You can also leave your comments directly in the application's settings.
 
-## 👍 Thanks for supporting TAMU-SPE Desktop!
+## 👍 Thanks!
 
 This project was built with heart for the Texas A&M SPE community. Thank you for being part of it!
