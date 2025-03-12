@@ -10,19 +10,19 @@
     <x>0</x>
     <y>0</y>
     <width>300</width>
-    <height>212</height>
+    <height>225</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>300</width>
-    <height>212</height>
+    <height>225</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>300</width>
-    <height>212</height>
+    <height>225</height>
    </size>
   </property>
   <property name="font">
@@ -70,8 +70,9 @@
          <property name="font">
           <font>
            <family>Futura</family>
-           <weight>75</weight>
-           <bold>true</bold>
+           <pointsize>12</pointsize>
+           <weight>50</weight>
+           <bold>false</bold>
           </font>
          </property>
          <property name="toolTip">
@@ -87,8 +88,9 @@
          <property name="font">
           <font>
            <family>Futura</family>
-           <weight>75</weight>
-           <bold>true</bold>
+           <pointsize>12</pointsize>
+           <weight>50</weight>
+           <bold>false</bold>
           </font>
          </property>
          <property name="toolTip">
@@ -108,7 +110,7 @@
           </font>
          </property>
          <property name="text">
-          <string>test notification</string>
+          <string>test notifications</string>
          </property>
          <property name="autoDefault">
           <bool>false</bool>
@@ -130,8 +132,8 @@
          <property name="font">
           <font>
            <family>Futura</family>
-           <weight>75</weight>
-           <bold>true</bold>
+           <weight>50</weight>
+           <bold>false</bold>
           </font>
          </property>
          <property name="text">

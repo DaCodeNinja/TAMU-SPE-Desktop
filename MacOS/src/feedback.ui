@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>449</width>
-    <height>391</height>
+    <width>443</width>
+    <height>382</height>
    </rect>
   </property>
   <property name="font">
@@ -46,31 +46,25 @@
       <widget class="QLabel" name="label">
        <property name="font">
         <font>
-         <family>Futura</family>
+         <family>Arial</family>
+         <pointsize>12</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>
        </property>
        <property name="text">
-        <string>Send feedback to our dev team!</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="label_2">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>20</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Advice, comments, or errors for future updates?</string>
+        <string>Send feedback:</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPlainTextEdit" name="plainTextEdit">
+       <property name="font">
+        <font>
+         <family>Futura</family>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
        <property name="focusPolicy">
         <enum>Qt::StrongFocus</enum>
        </property>
