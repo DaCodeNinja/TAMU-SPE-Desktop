@@ -16,6 +16,7 @@ import time
 import uuid
 from src import store_userid_version
 import src.changeyaml as changeyaml
+import qdarktheme
 import pync
 
 
@@ -221,9 +222,12 @@ class Widget(QMainWindow):
     def app_start(self):
         create_user_folder()
         self.dark_or_light_mode()
-        self.keep_in_background()
-        self.update_data()
+        self.background_start()
         self.refresh_table_daily()
+        self.start_notification_timer()
+        self.keep_in_background()
+        self.show()
+        self.splash_screen()
 
     def dark_or_light_mode(self):
         if is_dark_mode():
@@ -444,6 +448,30 @@ class Widget(QMainWindow):
             self.open_info_widget(item.row())
 
     def refresh_data(self):
+        if is_dark_mode():
+            print("System is in dark mode")
+            icon = QIcon()
+            icon.addFile(":/Images/images/icons8-refresh-50.png")
+            self.ui.refresh.setIcon(icon)
+            self.ui.refresh.setIconSize(QSize(16, 16))
+
+            icon1 = QIcon()
+            icon1.addFile(":/Images/images/icons8-settings-50.png")
+            self.ui.settings.setIcon(icon1)
+            self.ui.settings.setIconSize(QSize(16, 16))
+
+        else:
+            print("System is in light mode")
+            icon = QIcon()
+            icon.addFile(":/Images/images/icons8-refresh-24.png")
+            self.ui.refresh.setIcon(icon)
+            self.ui.refresh.setIconSize(QSize(16, 16))
+
+            icon1 = QIcon()
+            icon1.addFile(":/Images/images/blk-settings-50.png")
+            self.ui.settings.setIcon(icon1)
+            self.ui.settings.setIconSize(QSize(16, 16))
+
         self.ui.refresh.setEnabled(False)  # make the refresh button greyed out
         self.refresh_button_thread = QThread()  # create thread
         self.refresh_button_worker = Worker()  # create worker
@@ -1010,6 +1038,7 @@ class Widget(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    qdarktheme.setup_theme("auto")
     window = Widget()
     window.show()
     sys.exit(app.exec())
