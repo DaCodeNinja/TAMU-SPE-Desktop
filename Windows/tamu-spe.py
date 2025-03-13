@@ -84,7 +84,7 @@ class EventCheckerWorker(QObject):
     def start(self):
         df = data()  # Assuming data() is your function to get the new dataframe
         df_saved = pd.read_parquet(saved_data_filename)
-        df_saved['Links'] = df_saved['Links'].apply(lambda x: x.tolist() if isinstance(x, np.ndarray) else x)
+        df_saved.iloc[:, -1:] = df_saved['Links'].apply(lambda x: x.tolist() if isinstance(x, np.ndarray) else x)
         answer = False
 
         if df.equals(df_saved):
