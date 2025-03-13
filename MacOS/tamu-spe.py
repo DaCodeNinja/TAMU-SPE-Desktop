@@ -21,7 +21,7 @@ import pync
 
 
 # import os
-# os.environ["QT_LOGGING_RULES"] = "*.debug=false"
+os.environ["QT_LOGGING_RULES"] = "*.debug=false"
 
 # Important:
 # You need to run the following command to generate the ui_form.py file
@@ -89,6 +89,7 @@ class EventCheckerWorker(QObject):
     def start(self):
         df = data()  # Assuming data() is your function to get the new dataframe
         df_saved = pd.read_parquet(last_saved_data)
+        df_saved['Links'] = df_saved['Links'].apply(lambda x: x.tolist() if isinstance(x, np.ndarray) else x)
         answer = False
 
         if df.equals(df_saved):
@@ -223,11 +224,11 @@ class Widget(QMainWindow):
         create_user_folder()
         self.dark_or_light_mode()
         self.background_start()
-        self.refresh_table_daily()
-        self.start_notification_timer()
         self.keep_in_background()
         self.show()
         self.splash_screen()
+        self.refresh_table_daily()
+        self.start_notification_timer()
 
     def dark_or_light_mode(self):
         if is_dark_mode():
@@ -282,6 +283,7 @@ class Widget(QMainWindow):
         self.df = pd.read_parquet(last_saved_data)
         self.update_table()
         self.latest_event_refresh_timer()
+        self.send_notification()
         self.start_thread.quit()
         self.splash_ready()
 
@@ -658,6 +660,11 @@ class Widget(QMainWindow):
         notification_days = changeyaml.pull(usersettings_filename)['notification_days']
 
         if test:
+            print("time difference:", time_difference)
+            print("timedelta_hours:", timedelta(hours=notification_hours))
+            print("timedelta_days:", timedelta(days=notification_days))
+            print("timedelta_hours_difference:", time_difference-timedelta(hours=notification_hours))
+
             pync.notify(title=title, subtitle='Registration Required',
                         message=message, open='https://www.tamuspe.org/calendar')
 
@@ -992,7 +999,7 @@ class Widget(QMainWindow):
             col1 = self.table.item(row, 0).text()
             col5 = self.table.item(row, 4).text()
 
-            if col5 == "Double-Click for Info" or col1 == "Double-Click for Info":
+            if col5 == "Description" or col1 == "Location":
                 title = self.df.loc[row, ['Title']][0]
                 info = self.df.loc[row, ['Description']][0]
                 location = self.df.loc[row, ['Location']][0]

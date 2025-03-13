@@ -4,6 +4,7 @@ import datetime
 import time
 from icalendar import Calendar
 from bs4 import BeautifulSoup
+import numpy as np
 import pytz
 
 
@@ -104,7 +105,7 @@ def events_to_df(events: list) -> pd.DataFrame:
 
 
 def data() -> pd.DataFrame:
-    ical_url = ("https://calendar.google.com/calendar/ical/plnhtuastogemqmscotaq3b9p8%40group.calendar.google.com/public/basic.ics")
+    ical_url = ("https://calendar.google.com/calendar/ical/04a9e6f503203b8ecbdb2c61e896c7a797e9269d7a57e40e56adeacbe3bf6605%40group.calendar.google.com/public/basic.ics")
     events_list = get_cal_data(ical_url)
     events_df = events_to_df(events_list)
     return events_df
