@@ -24,8 +24,8 @@ import qdarktheme
 #     pyside6-uic form.ui -o ui_form.py, or
 #     pyside2-uic form.ui -o ui_form.py
 
-usersettings_filename = os.path.join(os.getenv('LOCALAPPDATA'), 'User/settings.yaml')
-saved_data_filename = os.path.join(os.getenv('LOCALAPPDATA'), 'User/last_cal_data.parquet')
+usersettings_filename = os.path.join(os.getenv('APPDATA'), 'TAMU-SPE/User/settings.yaml')
+saved_data_filename = os.path.join(os.getenv('APPDATA'), 'TAMU-SPE/User/last_cal_data.parquet')
 splash_filename = os.path.join(os.path.dirname(__file__), 'src/splashscreen.ui')
 setting_filename = os.path.join(os.path.dirname(__file__), 'src/settings.yaml')
 setting_ui_filename = os.path.join(os.path.dirname(__file__), 'src/settings.ui')
