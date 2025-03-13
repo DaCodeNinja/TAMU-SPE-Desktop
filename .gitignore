@@ -64,3 +64,9 @@ MacOS/src/__pycache__/ui_mainwindow.cpython-311.pyc
 MacOS/User/last_cal_data.parquet
 MacOS/User/settings.yaml
 MacOS/src/__pycache__/send_file.cpython-311.pyc
+Windows/src/__pycache__/changeyaml.cpython-310.pyc
+Windows/src/__pycache__/get_calendar_data.cpython-310.pyc
+Windows/src/__pycache__/get_response_key.cpython-310.pyc
+Windows/src/__pycache__/resources_rc.cpython-310.pyc
+Windows/src/__pycache__/store_userid_version.cpython-310.pyc
+Windows/src/__pycache__/ui_mainwindow.cpython-310.pyc
