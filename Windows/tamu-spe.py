@@ -1,6 +1,7 @@
 import shutil
 import sys
 import os
+import numpy as np
 import platform
 import pandas as pd
 from PySide6.QtCore import QUrl, QThread, QObject, Signal, Qt, QTimer, QCoreApplication, QSize, QFile
@@ -83,6 +84,7 @@ class EventCheckerWorker(QObject):
     def start(self):
         df = data()  # Assuming data() is your function to get the new dataframe
         df_saved = pd.read_parquet(saved_data_filename)
+        df_saved['Links'] = df_saved['Links'].apply(lambda x: x.tolist() if isinstance(x, np.ndarray) else x)
         answer = False
 
         if df.equals(df_saved):
@@ -203,6 +205,7 @@ class Widget(QMainWindow):
         self.df = pd.read_parquet(saved_data_filename)
         self.update_table()
         self.latest_event_refresh_timer()
+        self.send_notification()
         self.start_thread.quit()
         self.splash_ready()
 
