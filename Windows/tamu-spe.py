@@ -606,6 +606,7 @@ class Widget(QMainWindow):
     def set_notification_timer(self):
         def handle_timeout():
             # Set the timer to trigger every minute
+            self.send_notification() 
             now = datetime.now()
 
             try:
@@ -615,11 +616,12 @@ class Widget(QMainWindow):
                 next_minute = datetime(now.year, now.month, now.day, now.hour + 1, 0)
 
             finally:
+                now = datetime.now()
                 interval = (next_minute - now).total_seconds() * 1000  # Convert seconds to milliseconds
                 self.notification_timer.setInterval(interval)  # Set the timer to trigger every minute
                 self.notification_timer.start()
                 print('next minute:', self.notification_timer.remainingTime() / 1000, 'seconds')
-                self.send_notification() 
+
 
         self.notification_timer.timeout.connect(handle_timeout)
         now = datetime.now()

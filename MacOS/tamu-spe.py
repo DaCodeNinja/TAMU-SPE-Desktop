@@ -131,32 +131,6 @@ def create_user_folder():
         changeyaml.push(usersettings_filename, settings)
 
 
-def enforce_dark_mode(app_):
-    app.setStyle(QStyleFactory.create("Fusion"))  # Set the Fusion style
-
-    # Now adjust the color palette for a dark theme
-    dark_palette = QPalette()
-
-    # Use darker shades for various palette roles
-    dark_palette.setColor(QPalette.Window, QColor(53, 53, 53))
-    dark_palette.setColor(QPalette.Window, QColor(53, 53, 53))
-    dark_palette.setColor(QPalette.WindowText, Qt.white)
-    dark_palette.setColor(QPalette.Base, QColor(25, 25, 25))
-    dark_palette.setColor(QPalette.AlternateBase, QColor(53, 53, 53))
-    dark_palette.setColor(QPalette.ToolTipBase, Qt.white)
-    dark_palette.setColor(QPalette.ToolTipText, Qt.white)
-    dark_palette.setColor(QPalette.Text, Qt.white)
-    dark_palette.setColor(QPalette.Button, QColor(53, 53, 53))
-    dark_palette.setColor(QPalette.ButtonText, Qt.white)
-    dark_palette.setColor(QPalette.BrightText, Qt.red)
-    dark_palette.setColor(QPalette.Link, QColor(42, 130, 218))
-    dark_palette.setColor(QPalette.Highlight, QColor(42, 130, 218))
-    dark_palette.setColor(QPalette.HighlightedText, Qt.black)
-
-    app.setPalette(dark_palette)
-    app.setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white; }")
-
-
 def is_dark_mode():
     # Get the application's palette
     app_palette = QGuiApplication.palette()
@@ -591,6 +565,7 @@ class Widget(QMainWindow):
     def set_notification_timer(self):
         def handle_timeout():
             # Set the timer to trigger every minute
+            self.send_notification() 
             now = datetime.now()
 
             try:
@@ -600,11 +575,11 @@ class Widget(QMainWindow):
                 next_minute = datetime(now.year, now.month, now.day, now.hour + 1, 0)
 
             finally:
+                now = datetime.now()
                 interval = (next_minute - now).total_seconds() * 1000  # Convert seconds to milliseconds
                 self.notification_timer.setInterval(interval)  # Set the timer to trigger every minute
                 self.notification_timer.start()
                 print('next minute:', self.notification_timer.remainingTime() / 1000, 'seconds')
-                self.send_notification() 
 
         self.notification_timer.timeout.connect(handle_timeout)
         now = datetime.now()
@@ -616,6 +591,7 @@ class Widget(QMainWindow):
             next_minute = datetime(now.year, now.month, now.day, now.hour + 1, 0)
 
         finally:
+            now = datetime.now()
             interval = (next_minute - now).total_seconds() * 1000  # Convert seconds to milliseconds
             self.notification_timer.setInterval(interval)  # Set the timer to trigger every minute
             self.notification_timer.setSingleShot(True)  # Adjust the remaining time to the beginning of the next minute
