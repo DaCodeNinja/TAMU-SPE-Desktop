@@ -14,32 +14,30 @@ def get_cal_data(url: str) -> list:
     cal = Calendar.from_ical(response.content)
     tz = pytz.timezone('US/Central')
     events_dict = []
+    
     for component in cal.walk():
         if component.name == "VEVENT":
             summary = component.get('summary')
             description = component.get('description')
             location = component.get('location')
             time_start_utc = component.get('dtstart').dt
-
-            if component.get('dtend'):
-                time_end_utc = component.get('dtend').dt
-            
-            else:
-                time_end_utc = time_start_utc
+            time_end_utc = component.get('dtend').dt if component.get('dtend') else time_start_utc
 
             # Convert date to datetime if necessary
-            if isinstance(time_start_utc, datetime.datetime):
-                date = time_start_utc.astimezone(tz).date()
-            else:
-                date = time_start_utc
-                time_start_utc = datetime.datetime.combine(time_start_utc, datetime.time())
-                time_end_utc = datetime.datetime.combine(time_end_utc, datetime.time())
+            if isinstance(time_start_utc, datetime.date) and not isinstance(time_start_utc, datetime.datetime):
+                time_start_utc = datetime.datetime.combine(time_start_utc, datetime.time(), tzinfo=pytz.UTC)
+            if isinstance(time_end_utc, datetime.date) and not isinstance(time_end_utc, datetime.datetime):
+                time_end_utc = datetime.datetime.combine(time_end_utc, datetime.time(), tzinfo=pytz.UTC)
 
-            # Check if the event is in the future
-            if date >= datetime.date.today():
+            # Convert to local timezone
+            time_start_local = time_start_utc.astimezone(tz)
+            time_end_local = time_end_utc.astimezone(tz)
+
+            # Only include events that end in the future
+            if time_end_local >= datetime.datetime.now(tz):
                 event_details = {
-                    'start_time': time_start_utc.astimezone(tz),
-                    'end_time': time_end_utc.astimezone(tz),
+                    'start_time': time_start_local,
+                    'end_time': time_end_local,
                     'Title': str(summary),
                     'Location': str(location),
                     'Description': description,
@@ -53,7 +51,7 @@ def get_cal_data(url: str) -> list:
 
                 events_dict.append(event_details)
 
-    print(f'Data retrieval time: {time.time()-tim:.2f} seconds')
+    print(f'Data retrieval time: {time.time() - tim:.2f} seconds')
     return events_dict
 
 
@@ -105,7 +103,7 @@ def events_to_df(events: list) -> pd.DataFrame:
 
 
 def data() -> pd.DataFrame:
-    ical_url = ("https://calendar.google.com/calendar/ical/04a9e6f503203b8ecbdb2c61e896c7a797e9269d7a57e40e56adeacbe3bf6605%40group.calendar.google.com/public/basic.ics")
+    ical_url = ("https://calendar.google.com/calendar/ical/plnhtuastogemqmscotaq3b9p8%40group.calendar.google.com/public/basic.ics")
     events_list = get_cal_data(ical_url)
     events_df = events_to_df(events_list)
     return events_df

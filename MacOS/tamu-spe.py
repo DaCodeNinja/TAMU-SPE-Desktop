@@ -30,9 +30,9 @@ os.environ["QT_LOGGING_RULES"] = "*.debug=false"
 #     pyside2-uic form.ui -o ui_form.py
 
 
-usersettings_filename = os.path.join(os.path.dirname(__file__), 'User/settings.yaml')
+usersettings_filename = os.path.join(os.path.expanduser("~/Library/Application Support"), 'TAMU-SPE/settings.yaml')
+last_saved_data = os.path.join(os.path.expanduser("~/Library/Application Support"), 'TAMU-SPE/last_cal_data.parquet')
 settings_filename = os.path.join(os.path.dirname(__file__), 'src/settings.yaml')
-last_saved_data = os.path.join(os.path.dirname(__file__), 'User/last_cal_data.parquet')
 infowidget_filename = os.path.join(os.path.dirname(__file__), 'src/info_widget.ui')
 settings_dialog_filename = os.path.join(os.path.dirname(__file__), 'src/settings.ui')
 feedback_dialog_filename = os.path.join(os.path.dirname(__file__), 'src/feedback.ui')
@@ -88,7 +88,7 @@ class EventCheckerWorker(QObject):
         super().__init__()
 
     def start(self):
-        df = data()  # Assuming data() is your function to get the new dataframe
+        df = data()  # data() is the function to get the new dataframe
         df_saved = pd.read_parquet(last_saved_data)
         df_saved.iloc[:, -1:] = df_saved['Links'].apply(lambda x: x.tolist() if isinstance(x, np.ndarray) else x)
         answer = False
@@ -284,7 +284,6 @@ class Widget(QMainWindow):
         self.df = pd.read_parquet(last_saved_data)
         self.update_table()
         self.latest_event_refresh_timer()
-        self.send_notification()
         self.start_thread.quit()
         self.splash_ready()
 
@@ -441,6 +440,7 @@ class Widget(QMainWindow):
     def event_checker(self, answer):
         if answer:
             self.df = pd.read_parquet(last_saved_data)
+            self.latest_event_refresh_timer()
             self.update_table()
 
         self.event_checker_thread.quit()
@@ -482,8 +482,6 @@ class Widget(QMainWindow):
         self.refresh_button_thread.started.connect(self.refresh_button_worker.get_data)  # fetching from calendar
         self.refresh_button_worker.data_fetched.connect(self.handle_data_fetched)  # send fetched data to func
         self.refresh_button_worker.finished.connect(self.refresh_button_thread.quit)  # close the thread when it's done
-
-        # Start the thread
         self.refresh_button_thread.start()
 
     def handle_data_fetched(self, fetched_data):
@@ -593,9 +591,20 @@ class Widget(QMainWindow):
     def set_notification_timer(self):
         def handle_timeout():
             # Set the timer to trigger every minute
-            self.notification_timer.setInterval(60 * 1000)  # 60 seconds in milliseconds
-            self.notification_timer.start()  # Restart the timer
-            self.send_notification()
+            now = datetime.now()
+
+            try:
+                next_minute = datetime(now.year, now.month, now.day, now.hour, now.minute + 1)
+
+            except:
+                next_minute = datetime(now.year, now.month, now.day, now.hour + 1, 0)
+
+            finally:
+                interval = (next_minute - now).total_seconds() * 1000  # Convert seconds to milliseconds
+                self.notification_timer.setInterval(interval)  # Set the timer to trigger every minute
+                self.notification_timer.start()
+                print('next minute:', self.notification_timer.remainingTime() / 1000, 'seconds')
+                self.send_notification() 
 
         self.notification_timer.timeout.connect(handle_timeout)
         now = datetime.now()
@@ -611,7 +620,6 @@ class Widget(QMainWindow):
             self.notification_timer.setInterval(interval)  # Set the timer to trigger every minute
             self.notification_timer.setSingleShot(True)  # Adjust the remaining time to the beginning of the next minute
             self.notification_timer.start()
-            print('notif timer started')
             print('next minute:', self.notification_timer.remainingTime() / 1000, 'seconds')
 
     def send_notification(self, test=None):
@@ -652,7 +660,7 @@ class Widget(QMainWindow):
         timezone_info = start_time.tzinfo
         current_datetime = datetime.now(timezone_info)
 
-        start_time = start_time.replace(second=0, microsecond=0)
+        start_time = start_time.replace(microsecond=0)
         current_datetime = current_datetime.replace(second=0, microsecond=0)
 
         time_difference = start_time - current_datetime
@@ -661,11 +669,6 @@ class Widget(QMainWindow):
         notification_days = changeyaml.pull(usersettings_filename)['notification_days']
 
         if test:
-            print("time difference:", time_difference)
-            print("timedelta_hours:", timedelta(hours=notification_hours))
-            print("timedelta_days:", timedelta(days=notification_days))
-            print("timedelta_hours_difference:", time_difference-timedelta(hours=notification_hours))
-
             pync.notify(title=title, subtitle='Registration Required',
                         message=message, open='https://www.tamuspe.org/calendar')
 
@@ -1001,12 +1004,7 @@ class Widget(QMainWindow):
             col5 = self.table.item(row, 4).text()
 
             if col5 == "Description" or col1 == "Location":
-                title = self.df.loc[row, ['Title']][0]
-                info = self.df.loc[row, ['Description']][0]
-                location = self.df.loc[row, ['Location']][0]
-                dates = self.table.item(row, 2).text()
-                times = self.table.item(row, 3).text()
-                self.open_info_widget(title, info, location, dates, times, row)
+                self.open_info_widget(row)
 
         open_action.triggered.connect(show_app)
         website_action.triggered.connect(lambda: QDesktopServices.openUrl(QUrl("http://www.tamuspe.org")))
