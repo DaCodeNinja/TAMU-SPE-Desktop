@@ -121,6 +121,22 @@ def create_user_folder():
         changeyaml.push(usersettings_filename, settings)
 
 
+def is_dark_mode():
+    # Get the application's palette
+    app_palette = QGuiApplication.palette()
+
+    # Check the color of the window text and the window background
+    window_text_color = app_palette.color(QPalette.ColorRole.WindowText)
+    window_color = app_palette.color(QPalette.ColorRole.Window)
+
+    # Calculate the luminance (a measure of the brightness)
+    text_luminance = 0.299 * window_text_color.red() + 0.587 * window_text_color.green() + 0.114 * window_text_color.blue()
+    window_luminance = 0.299 * window_color.red() + 0.587 * window_color.green() + 0.114 * window_color.blue()
+
+    # A simple heuristic: if the text is brighter than the background, it's likely a dark mode
+    return text_luminance > window_luminance
+
+
 class Widget(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -376,6 +392,30 @@ class Widget(QMainWindow):
         self.event_checker_thread.quit()
 
     def refresh_data(self):
+        if is_dark_mode():
+            print("System is in dark mode")
+            icon = QIcon()
+            icon.addFile(":/Images/images/icons8-refresh-50.png")
+            self.ui.refresh.setIcon(icon)
+            self.ui.refresh.setIconSize(QSize(16, 16))
+
+            icon1 = QIcon()
+            icon1.addFile(":/Images/images/icons8-settings-50.png")
+            self.ui.settings.setIcon(icon1)
+            self.ui.settings.setIconSize(QSize(16, 16))
+
+        else:
+            print("System is in light mode")
+            icon = QIcon()
+            icon.addFile(":/Images/images/icons8-refresh-24.png")
+            self.ui.refresh.setIcon(icon)
+            self.ui.refresh.setIconSize(QSize(16, 16))
+
+            icon1 = QIcon()
+            icon1.addFile(":/Images/images/blk-settings-50.png")
+            self.ui.settings.setIcon(icon1)
+            self.ui.settings.setIconSize(QSize(16, 16))
+
         self.ui.refresh.setEnabled(False)  # make the refresh button greyed out
         self.refresh_button_thread = QThread()  # create thread
         self.refresh_button_worker = Worker()  # create worker
@@ -566,9 +606,20 @@ class Widget(QMainWindow):
     def set_notification_timer(self):
         def handle_timeout():
             # Set the timer to trigger every minute
-            self.notification_timer.setInterval(60 * 1000)  # 60 seconds in milliseconds
-            self.notification_timer.start()  # Restart the timer
-            self.send_notification()
+            now = datetime.now()
+
+            try:
+                next_minute = datetime(now.year, now.month, now.day, now.hour, now.minute + 1)
+
+            except:
+                next_minute = datetime(now.year, now.month, now.day, now.hour + 1, 0)
+
+            finally:
+                interval = (next_minute - now).total_seconds() * 1000  # Convert seconds to milliseconds
+                self.notification_timer.setInterval(interval)  # Set the timer to trigger every minute
+                self.notification_timer.start()
+                print('next minute:', self.notification_timer.remainingTime() / 1000, 'seconds')
+                self.send_notification() 
 
         self.notification_timer.timeout.connect(handle_timeout)
         now = datetime.now()

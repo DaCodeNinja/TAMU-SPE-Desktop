@@ -4,6 +4,7 @@ import datetime
 import time
 from icalendar import Calendar
 from bs4 import BeautifulSoup
+import numpy as np
 import pytz
 
 
@@ -13,32 +14,30 @@ def get_cal_data(url: str) -> list:
     cal = Calendar.from_ical(response.content)
     tz = pytz.timezone('US/Central')
     events_dict = []
+    
     for component in cal.walk():
         if component.name == "VEVENT":
             summary = component.get('summary')
             description = component.get('description')
             location = component.get('location')
             time_start_utc = component.get('dtstart').dt
-
-            if component.get('dtend'):
-                time_end_utc = component.get('dtend').dt
-            
-            else:
-                time_end_utc = time_start_utc
+            time_end_utc = component.get('dtend').dt if component.get('dtend') else time_start_utc
 
             # Convert date to datetime if necessary
-            if isinstance(time_start_utc, datetime.datetime):
-                date = time_start_utc.astimezone(tz).date()
-            else:
-                date = time_start_utc
-                time_start_utc = datetime.datetime.combine(time_start_utc, datetime.time())
-                time_end_utc = datetime.datetime.combine(time_end_utc, datetime.time())
+            if isinstance(time_start_utc, datetime.date) and not isinstance(time_start_utc, datetime.datetime):
+                time_start_utc = datetime.datetime.combine(time_start_utc, datetime.time(), tzinfo=pytz.UTC)
+            if isinstance(time_end_utc, datetime.date) and not isinstance(time_end_utc, datetime.datetime):
+                time_end_utc = datetime.datetime.combine(time_end_utc, datetime.time(), tzinfo=pytz.UTC)
 
-            # Check if the event is in the future
-            if date >= datetime.date.today():
+            # Convert to local timezone
+            time_start_local = time_start_utc.astimezone(tz)
+            time_end_local = time_end_utc.astimezone(tz)
+
+            # Only include events that end in the future
+            if time_end_local >= datetime.datetime.now(tz):
                 event_details = {
-                    'start_time': time_start_utc.astimezone(tz),
-                    'end_time': time_end_utc.astimezone(tz),
+                    'start_time': time_start_local,
+                    'end_time': time_end_local,
                     'Title': str(summary),
                     'Location': str(location),
                     'Description': description,
@@ -52,7 +51,7 @@ def get_cal_data(url: str) -> list:
 
                 events_dict.append(event_details)
 
-    print(f'Data retrieval time: {time.time()-tim:.2f} seconds')
+    print(f'Data retrieval time: {time.time() - tim:.2f} seconds')
     return events_dict
 
 
