@@ -1,0 +1,6 @@
+nuitka --standalone --enable-plugin=pyside6 \
+    --macos-app-mode='gui' \
+    --output-dir=macOS/Deployment \
+    --include-data-dir=macOS/src=src \
+    --output-filename=TAMU-SPE.app \
+    --remove-output macOS/tamu-spe.py

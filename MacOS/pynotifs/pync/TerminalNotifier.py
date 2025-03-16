@@ -32,7 +32,6 @@ class TerminalNotifier(object):
                 "vendor/terminal-notifier-%s/tamuspe-notifier.app" % self.TERMINAL_NOTIFIER_VERSION
             )
             self.bin_path = os.path.join(self.app_path, "Contents/MacOS/tamuspe-notifier")
-            print(self.bin_path)
 
         if not self.is_available():
             raise Exception("pync is only supported on Mac OS X 10.8, or higher.")

@@ -1,7 +1,6 @@
 import sys
 import os
 import numpy as np
-import platform
 import shutil
 import pandas as pd
 from PySide6.QtCore import QUrl, QThread, QObject, Signal, Qt, QTimer, QCoreApplication, QSize
@@ -9,7 +8,7 @@ from PySide6.QtGui import QDesktopServices, QFont, QColor, QIcon, QAction, QPale
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtWidgets import (QApplication, QMainWindow, QTableWidgetItem, QTextBrowser, QLabel,
                                QHeaderView, QSpinBox, QCheckBox, QMenu, QSystemTrayIcon, QMessageBox, QPushButton,
-                               QPlainTextEdit, QStyleFactory)
+                               QPlainTextEdit)
 from src.ui_mainwindow import Ui_MainWindow
 from datetime import datetime, timedelta
 from src.get_calendar_data import data
@@ -19,7 +18,6 @@ from src import store_userid_version
 import src.changeyaml as changeyaml
 import qdarktheme
 import pync
-
 
 # import os
 os.environ["QT_LOGGING_RULES"] = "*.debug=false"
@@ -93,10 +91,7 @@ class EventCheckerWorker(QObject):
         df_saved.iloc[:, -1:] = df_saved['Links'].apply(lambda x: x.tolist() if isinstance(x, np.ndarray) else x)
         answer = False
 
-        if df.equals(df_saved):
-            print('data: no change')
-        else:
-            print("data: New Data")
+        if not df.equals(df_saved):
             df.to_parquet(last_saved_data)
             answer = True
 
@@ -252,7 +247,7 @@ class Widget(QMainWindow):
         self.start_thread.start()
 
     def online_mode(self):
-        print('online')
+        print('online', last_saved_data)
         self.online = True
         self.ui.offline_label.setText('')
         self.df = pd.read_parquet(last_saved_data)
@@ -413,6 +408,7 @@ class Widget(QMainWindow):
 
     def event_checker(self, answer):
         if answer:
+            print("data: New Data")
             self.df = pd.read_parquet(last_saved_data)
             self.latest_event_refresh_timer()
             self.update_table()
@@ -505,7 +501,7 @@ class Widget(QMainWindow):
         self.refresh_daily_timer.setSingleShot(True)  # Adjust the remaining time to the beginning of the next midnight
         self.refresh_daily_timer.start()
         print('refresh_table_daily timer started')
-        print('next day:', self.refresh_daily_timer.remainingTime() / 1000 / 60 / 60, 'hours')
+        print('Next day in:', self.refresh_daily_timer.remainingTime() / 1000 / 60 / 60, 'hours')
 
     def latest_event_refresh_timer(self):
 
@@ -525,7 +521,7 @@ class Widget(QMainWindow):
             self.latest_event_timer.setInterval(new_interval)
             self.latest_event_timer.start()  # Restart the timer
             self.refresh_data()
-            print('next event:', self.latest_event_timer.remainingTime() / 1000 / 60 / 60, 'hours')
+            print('Next event in:', self.latest_event_timer.remainingTime() / 1000 / 60 / 60, 'hours')
 
         self.latest_event_timer.timeout.connect(handle_timeout)
 
@@ -546,7 +542,7 @@ class Widget(QMainWindow):
         self.latest_event_timer.start()
         self.event_refresh_started = True
         print('latest_event_timer started')
-        print('next event:', self.latest_event_timer.remainingTime() / 1000 / 60 / 60, 'hours')
+        print('Next event in:', self.latest_event_timer.remainingTime() / 1000 / 60 / 60, 'hours')
 
     def start_notification_timer(self):
         if changeyaml.pull(usersettings_filename)['notifications']:
@@ -564,39 +560,27 @@ class Widget(QMainWindow):
 
     def set_notification_timer(self):
         def handle_timeout():
-            # Set the timer to trigger every minute
-            self.send_notification() 
+            self.send_notification()
             now = datetime.now()
-
-            try:
-                next_minute = datetime(now.year, now.month, now.day, now.hour, now.minute + 1)
-
-            except:
-                next_minute = datetime(now.year, now.month, now.day, now.hour + 1, 0)
-
-            finally:
-                now = datetime.now()
-                interval = (next_minute - now).total_seconds() * 1000  # Convert seconds to milliseconds
-                self.notification_timer.setInterval(interval)  # Set the timer to trigger every minute
-                self.notification_timer.start()
-                print('next minute:', self.notification_timer.remainingTime() / 1000, 'seconds')
-
-        self.notification_timer.timeout.connect(handle_timeout)
-        now = datetime.now()
-
-        try:
-            next_minute = datetime(now.year, now.month, now.day, now.hour, now.minute + 1)
-
-        except:
-            next_minute = datetime(now.year, now.month, now.day, now.hour + 1, 0)
-
-        finally:
-            now = datetime.now()
-            interval = (next_minute - now).total_seconds() * 1000  # Convert seconds to milliseconds
-            self.notification_timer.setInterval(interval)  # Set the timer to trigger every minute
-            self.notification_timer.setSingleShot(True)  # Adjust the remaining time to the beginning of the next minute
+            next_minute = now.replace(second=0, microsecond=0) + timedelta(minutes=1)
+            interval = (next_minute - now).total_seconds() * 1000  # milliseconds
+            self.notification_timer.setInterval(interval)  # next minute
             self.notification_timer.start()
-            print('next minute:', self.notification_timer.remainingTime() / 1000, 'seconds')
+            print('Next minute in:', self.notification_timer.remainingTime() / 1000, 'seconds')
+
+        # Connect the timeout signal to the handler
+        self.notification_timer.timeout.connect(handle_timeout)
+
+        # Align to the next minute boundary
+        now = datetime.now()
+        next_minute = now.replace(second=0, microsecond=0) + timedelta(minutes=1)
+        interval = (next_minute - now).total_seconds() * 1000  # milliseconds
+
+        # First shot aligns to the next minute
+        self.notification_timer.setInterval(interval)
+        self.notification_timer.setSingleShot(True)  # First shot only once
+        self.notification_timer.start()
+        print('Next minute in:', self.notification_timer.remainingTime() / 1000, 'seconds')
 
     def send_notification(self, test=None):
         # send notification logic
@@ -615,6 +599,7 @@ class Widget(QMainWindow):
             self.event_checker_thread.start()
 
         now = datetime.now()
+        print("now:", now)
         index = 0
 
         for index_, row in self.df.iterrows():
@@ -648,38 +633,37 @@ class Widget(QMainWindow):
             pync.notify(title=title, subtitle='Registration Required',
                         message=message, open='https://www.tamuspe.org/calendar')
 
-        if location != "--":
 
-            if changeyaml.pull(usersettings_filename)['days']:
-                print('next day notification:', time_difference - timedelta(days=notification_days))
+        if changeyaml.pull(usersettings_filename)['days']:
+            print('next day notification:', time_difference - timedelta(days=notification_days))
 
-                if time_difference == timedelta(days=notification_days):
-                    if notification_days == 1:
-                        subtitle = 'Starts in: 1 Day, Registration Required'
-                    else:
-                        subtitle = f'Starts in: {notification_days} Days, Registration Required'
+            if time_difference == timedelta(days=notification_days):
+                if notification_days == 1:
+                    subtitle = 'Starts in: 1 Day, Registration Required'
+                else:
+                    subtitle = f'Starts in: {notification_days} Days, Registration Required'
 
-                    pync.notify(title=title, subtitle=subtitle,
-                                message=message, open='https://www.tamuspe.org/calendar')
+                pync.notify(title=title, subtitle=subtitle,
+                            message=message, open='https://www.tamuspe.org/calendar')
 
-                    print(f'The start time is less than {notification_days} days away from the current time.')
+                print(f'The start time is less than {notification_days} days away from the current time.')
 
 
-            if changeyaml.pull(usersettings_filename)['hours']:
-                print('next hour notification:', time_difference - timedelta(hours=notification_hours))
+        if changeyaml.pull(usersettings_filename)['hours']:
+            print('next hour notification:', time_difference - timedelta(hours=notification_hours))
 
-                if time_difference == timedelta(hours=notification_hours):
+            if time_difference == timedelta(hours=notification_hours):
 
-                    if notification_hours == 1:
-                        subtitle = 'Starts in: 1 Hour'
-                    else:
-                        subtitle = f'Starts in: {notification_hours} Hours'
+                if notification_hours == 1:
+                    subtitle = 'Starts in: 1 Hour'
+                else:
+                    subtitle = f'Starts in: {notification_hours} Hours'
 
-                    
-                    pync.notify(title=title, subtitle=subtitle,
-                                message=message, open='https://www.tamuspe.org/calendar')
+                
+                pync.notify(title=title, subtitle=subtitle,
+                            message=message, open='https://www.tamuspe.org/calendar')
 
-                    print(f'The start time is less than {notification_hours} hours away from the current time.')
+                print(f'The start time is less than {notification_hours} hours away from the current time.')
 
     def open_info_widget(self, row):
         print('open info widget:', row + 1)
