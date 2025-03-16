@@ -1459,3 +1459,7 @@ Windows/Deployment/tamu-spe/tzdata/zoneinfo/US/Samoa
 Windows/Deployment/tamu-spe/yaml/_yaml.pyd
 Windows/Deployment/tamu-spe/zstandard/_cffi.pyd
 Windows/Deployment/tamu-spe/zstandard/backend_c.pyd
+MacOS/pynotifs/pync/__pycache__/__init__.cpython-310.pyc
+MacOS/pynotifs/pync/__pycache__/__init__.cpython-311.pyc
+MacOS/pynotifs/pync/__pycache__/TerminalNotifier.cpython-310.pyc
+MacOS/pynotifs/pync/__pycache__/TerminalNotifier.cpython-311.pyc
