@@ -605,40 +605,26 @@ class Widget(QMainWindow):
 
     def set_notification_timer(self):
         def handle_timeout():
-            # Set the timer to trigger every minute
-            self.send_notification() 
+            self.send_notification()
             now = datetime.now()
-
-            try:
-                next_minute = datetime(now.year, now.month, now.day, now.hour, now.minute + 1)
-
-            except:
-                next_minute = datetime(now.year, now.month, now.day, now.hour + 1, 0)
-
-            finally:
-                now = datetime.now()
-                interval = (next_minute - now).total_seconds() * 1000  # Convert seconds to milliseconds
-                self.notification_timer.setInterval(interval)  # Set the timer to trigger every minute
-                self.notification_timer.start()
-                print('next minute:', self.notification_timer.remainingTime() / 1000, 'seconds')
-
-
-        self.notification_timer.timeout.connect(handle_timeout)
-        now = datetime.now()
-
-        try:
-            next_minute = datetime(now.year, now.month, now.day, now.hour, now.minute + 1)
-
-        except:
-            next_minute = datetime(now.year, now.month, now.day, now.hour + 1, 0)
-
-        finally:
-            interval = (next_minute - now).total_seconds() * 1000  # Convert seconds to milliseconds
-            self.notification_timer.setInterval(interval)  # Set the timer to trigger every minute
-            self.notification_timer.setSingleShot(True)  # Adjust the remaining time to the beginning of the next minute
+            next_minute = now.replace(second=0, microsecond=0) + timedelta(minutes=1)
+            interval = (next_minute - now).total_seconds() * 1000  # milliseconds
+            self.notification_timer.setInterval(interval)  # next minute
             self.notification_timer.start()
-            print('notif timer started')
-            print('next minute:', self.notification_timer.remainingTime() / 1000, 'seconds')
+
+        # Connect the timeout signal to the handler
+        self.notification_timer.timeout.connect(handle_timeout)
+
+        # Align to the next minute boundary
+        now = datetime.now()
+        next_minute = now.replace(second=0, microsecond=0) + timedelta(minutes=1)
+        interval = (next_minute - now).total_seconds() * 1000  # milliseconds
+
+        # First shot aligns to the next minute
+        self.notification_timer.setInterval(interval)
+        self.notification_timer.setSingleShot(True)  # First shot only once
+        self.notification_timer.start()
+        print('Next minute in:', self.notification_timer.remainingTime() / 1000, 'seconds')
 
     def send_notification(self, test=None):
         # send notification logic

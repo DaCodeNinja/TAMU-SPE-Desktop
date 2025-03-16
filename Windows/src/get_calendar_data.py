@@ -9,7 +9,6 @@ import pytz
 
 
 def get_cal_data(url: str) -> list:
-    tim = time.time()
     response = requests.get(url)
     cal = Calendar.from_ical(response.content)
     tz = pytz.timezone('US/Central')
@@ -51,7 +50,6 @@ def get_cal_data(url: str) -> list:
 
                 events_dict.append(event_details)
 
-    print(f'Data retrieval time: {time.time() - tim:.2f} seconds')
     return events_dict
 
 
