@@ -1,8 +1,8 @@
 a = Analysis(
-    ['mainwindow.py'],
+    ['tamu-spe.py'],
     pathex=[],
     binaries=[],
-    datas=[('settings.yaml', '.'), ('feedback.ui', '.'), ('info_widget.ui', '.'), ('settings.ui', '.')],
+    datas=[('src/settings.yaml', 'src'), ('src/feedback.ui', 'src'), ('src/info_widget.ui', 'src'), ('src/settings.ui', 'src')],
     hiddenimports=['yaml'],
     hookspath=[],
     hooksconfig={},
@@ -37,7 +37,7 @@ exe = EXE(
 app = BUNDLE(exe,
              name='TAMU-SPE OnDemand.app',
              icon="images/SPE_A_M_RGB_square.icns",
-             bundle_identifier='com.albertoalvarez.tamuspe_ondemand',
+             bundle_identifier='com.albertoalvarez.tamuspe',
              version='1.0.0',
              info_plist={
                  'NSHighResolutionCapable': 'True',
